@@ -1,0 +1,66 @@
+name "inochi-session"
+description "App that allows you to stream with Inochi2D puppets"
+authors "Inochi2D Project"
+copyright "Copyright © 2021, Inochi2D Project"
+license "BSD 2-clause"
+dependency "tinyfiledialogs" version="~>0.10.1"
+dependency "facetrack-d" version="~>0.5.0"
+dependency "inui" version="~>1.0.0"
+dependency "lumars" version="~>1.2.1"
+dependency "bindbc-sdl" version="~>1.1.2"
+dependency "bindbc-imgui" version="~>0.7.0"
+dependency "i18n-d" version="~>1.0.0"
+dependency "inochi2d" version="~>0.7.2"
+targetPath "out/"
+workingDirectory "out/"
+
+versions "GL_32" "USE_SDL2" "USE_GL" "SDL_2020" "USE_OpenGL3"
+stringImportPaths "res"
+
+
+lflags "-rpath=$$ORIGIN" platform="linux"
+dflags "-mscrtlib=msvcrt" platform="windows-ldc"// Use the dynamic CRT on Windows.
+dflags "-flto=full" platform="windows-ldc"		// Enable Link Time Optimizations (LTO)
+dflags "-defaultlib=phobos2-ldc-shared,druntime-ldc-shared" platform="windows-ldc" // Use the D Runtime with LTO enabled.
+//dflags "-shared" // We want the shared (dynamic) libraries for phobos and DRuntime
+
+//
+// CONFIGURATIONS
+//
+configuration "barebones" {
+	subConfiguration "bindbc-imgui" "static_dynamicCRT"
+	targetType "executable"
+}
+
+configuration "win32-barebones" {
+	subConfiguration "bindbc-imgui" "static_staticCRT"
+	platforms "windows"
+	targetType "executable"
+	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup"
+}
+
+// Official build configurations.
+// Do not package your compilation of Inochi Creator with these configurations
+// unless you have prior permission from the Inochi2D project.
+configuration "full" {
+	subConfiguration "bindbc-imgui" "static_dynamicCRT"
+	targetType "executable"
+	versions "InBranding"
+}
+
+configuration "win32-full" {
+	subConfiguration "bindbc-imgui" "static_staticCRT"
+	platforms "windows"
+	targetType "executable"
+	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="window-dmd"
+	sourceFiles "res\\inochi-creator.res"
+	preBuildCommands "rc.exe /v res\\inochi-creator.rc"
+	versions "InBranding"
+}
+
+configuration "win32-lite" {
+	subConfiguration "bindbc-imgui" "static_staticCRT"
+	platforms "windows"
+	targetType "executable"
+	versions "InBranding" "InLite"
+}
