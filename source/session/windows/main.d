@@ -1,3 +1,9 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.windows.main;
 import session.scene;
 import inui;
@@ -89,6 +95,9 @@ public:
 
         // Preload any specified models
         foreach(arg; args) {
+            import std.file : exists;
+            if (!exists(arg)) continue;
+
             insPuppets ~= inLoadPuppet(arg);
         }
 
