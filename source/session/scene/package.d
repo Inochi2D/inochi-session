@@ -16,10 +16,15 @@ import inui;
 Puppet[] insPuppets;
 
 void insUpdateScene() {
+    inUpdate();
     inBeginScene();
         foreach(ref puppet; insPuppets) {
             puppet.update();
             puppet.draw();
+        
+            foreach(driver; puppet.getDrivers()) {
+                driver.drawDebug();
+            }
         }
     inEndScene();
 }
@@ -85,7 +90,11 @@ void insInteractWithScene() {
     if (hasDonePuppetSelect && draggingPuppet) {
         import bindbc.imgui : igSetMouseCursor, ImGuiMouseCursor;
         igSetMouseCursor(ImGuiMouseCursor.Hand);
-        targetScale = draggingPuppet.root.localTransform.scale.x+(inInputMouseScrollDelta());
+        targetScale = clamp(
+            draggingPuppet.root.localTransform.scale.x+(inInputMouseScrollDelta()), 
+            0.25,
+            1000
+        );
     }
 
     // Model Movement
@@ -110,13 +119,6 @@ void insInteractWithScene() {
             draggingPuppet.root.localTransform.scale,
             vec2(targetScale),
             inGetDeltaTime()
-        );
-        draggingPuppet.root.localTransform.scale = vec2(
-            clamp(
-                draggingPuppet.root.localTransform.scale.x,
-                0.25,
-                1000
-            )
         );
     }
 }

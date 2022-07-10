@@ -35,6 +35,7 @@ private:
 protected:
     override
     void onEarlyUpdate() {
+
         insUpdateScene();
         inDrawScene(vec4(0, 0, width, height));
     }
@@ -56,6 +57,7 @@ protected:
                 }
 
                 uiImLabel(_("Double-click to show/hide"));
+                uiImLabel(_("%sms").format(inGetTime()));
 
                 // DONATE BUTTON
                 avail = uiImAvailableSpace();
