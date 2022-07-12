@@ -21,10 +21,6 @@ void insUpdateScene() {
         foreach(ref puppet; insPuppets) {
             puppet.update();
             puppet.draw();
-        
-            foreach(driver; puppet.getDrivers()) {
-                driver.drawDebug();
-            }
         }
     inEndScene();
 }

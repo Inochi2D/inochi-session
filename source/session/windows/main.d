@@ -57,7 +57,6 @@ protected:
                 }
 
                 uiImLabel(_("Double-click to show/hide"));
-                uiImLabel(_("%sms").format(inGetTime()));
 
                 // DONATE BUTTON
                 avail = uiImAvailableSpace();
