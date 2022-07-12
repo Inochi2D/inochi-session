@@ -6,7 +6,7 @@ license "BSD 2-clause"
 dependency "tinyfiledialogs" version="~>0.10.1"
 dependency "facetrack-d" version="~>0.5.0"
 dependency "inui" version="~>1.0.0"
-dependency "lumars" version="~>1.2.1"
+dependency "lumars" version="~>1.3.0"
 dependency "bindbc-sdl" version="~>1.1.2"
 dependency "bindbc-imgui" version="~>0.7.0"
 dependency "i18n-d" version="~>1.0.0"
@@ -46,6 +46,14 @@ configuration "full" {
 	subConfiguration "bindbc-imgui" "static_dynamicCRT"
 	targetType "executable"
 	versions "InBranding"
+}
+
+configuration "osx-full" {
+	platform "osx"
+	targetType "executable"
+	versions "InBranding" "ImGuiDynamic"
+
+	subConfiguration "bindbc-imgui" "dynamic_dynamicCRT"	
 }
 
 configuration "win32-full" {
