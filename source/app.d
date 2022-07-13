@@ -11,8 +11,13 @@ import inochi2d;
 import inui;
 import session.windows;
 import std.stdio : writeln;
+import session.plugins;
+import session.log;
+import session.ver;
 
 void main(string[] args) {
+    insLogInfo("Inochi Session %s, args=%s", INS_VERSION, args[1..$]);
+    insLuaInit();
     
     // Set the application info
     InApplication appInfo = InApplication(
