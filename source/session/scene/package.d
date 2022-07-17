@@ -11,6 +11,7 @@ import inui.input;
 import inui;
 import session.tracking;
 import session.tracking.vspace;
+import session.panels.tracking : insTrackingPanelRefresh;
 import session.log;
 import std.string;
 
@@ -54,7 +55,6 @@ void insSceneAddPuppet(Puppet puppet) {
             // binding name assignment
             if (param.isVec2) binding.name = "%s (%s)".format(param.name, i == 0 ? "X" : "Y");
             else binding.name = param.name;
-            binding.nameCStr = binding.name.toStringz;
 
             item.bindings ~= binding;
         }
@@ -70,6 +70,7 @@ void insSceneInit() {
 
     // DEBUG
     VirtualSpaceZone zone = new VirtualSpaceZone("MAIN");
+    zone.sources ~= new FTSource(new VTSAdaptor, ["appName": "inochi-session", "phoneIP": "10.0.0.146"]);
     insScene.space.addZone(zone);
 }
 
@@ -166,11 +167,13 @@ void insInteractWithScene() {
                         draggingPuppet = puppet;
                         selectedPuppet = i;
                         selectedAny = true;
+                        insTrackingPanelRefresh();
                     }
                 }
                 if (!selectedAny) {
                     selectedPuppet = -1;
                     draggingPuppet = null;
+                    insTrackingPanelRefresh();
                 }
             inSetUpdateBounds(false);
             

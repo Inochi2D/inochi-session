@@ -37,6 +37,46 @@ enum BindingType {
 }
 
 /**
+    Source type
+*/
+enum SourceType {
+    /**
+        The source is a blendshape
+    */
+    Blendshape,
+
+    /**
+        Source is the X position of a bone
+    */
+    BonePosX,
+
+    /**
+        Source is the Y position of a bone
+    */
+    BonePosY,
+
+    /**
+        Source is the Y position of a bone
+    */
+    BonePosZ,
+
+    /**
+        Source is the roll of a bone
+    */
+    BoneRotRoll,
+
+    /**
+        Source is the pitch of a bone
+    */
+    BoneRotPitch,
+
+    /**
+        Source is the yaw of a bone
+    */
+    BoneRotYaw,
+}
+
+/**
     Tracking Binding 
 */
 class TrackingBinding {
@@ -72,24 +112,24 @@ public:
     string name;
 
     /**
-        Display name for the binding (as a C string)
+        Name of the source blendshape or bone
     */
-    const(char)* nameCStr;
+    string sourceName;
 
     /**
-        Name of the source blendshape
+        Display Name of the source blendshape or bone
     */
-    string sourceBlendshape;
-
-    /**
-        Name of source blendshape (as a C string)
-    */
-    const(char)* sourceBlendshapeCStr;
+    string sourceDisplayName;
 
     /**
         The type of the binding
     */
     BindingType type;
+
+    /**
+        The type of the tracking source
+    */
+    SourceType sourceType;
 
     /**
         The Inochi2D parameter it should apply to
@@ -129,6 +169,11 @@ public:
     int dampenLevel;
 
     /**
+        Whether to inverse the binding
+    */
+    bool inverse;
+
+    /**
         Updates the parameter binding
     */
     void update() {
@@ -137,11 +182,45 @@ public:
 
         switch(type) {
             case BindingType.RatioBinding:
-                if (sourceBlendshape.length == 0) break;
+                if (sourceName.length == 0) break;
+
+                float src = 0;
+
+                switch(sourceType) {
+
+                    case SourceType.Blendshape:
+                        src = insScene.space.currentZone.getBlendshapeFor(sourceName);
+                        break;
+
+                    case SourceType.BonePosX:
+                        src = insScene.space.currentZone.getBoneFor(sourceName).position.x;
+                        break;
+
+                    case SourceType.BonePosY:
+                        src = insScene.space.currentZone.getBoneFor(sourceName).position.y;
+                        break;
+
+                    case SourceType.BonePosZ:
+                        src = insScene.space.currentZone.getBoneFor(sourceName).position.z;
+                        break;
+
+                    case SourceType.BoneRotRoll:
+                        src = insScene.space.currentZone.getBoneFor(sourceName).rotation.roll.degrees;
+                        break;
+
+                    case SourceType.BoneRotPitch:
+                        src = insScene.space.currentZone.getBoneFor(sourceName).rotation.pitch.degrees;
+                        break;
+
+                    case SourceType.BoneRotYaw:
+                        src = insScene.space.currentZone.getBoneFor(sourceName).rotation.yaw.degrees;
+                        break;
+                    default: assert(0);
+                }
 
                 // Calculate the input ratio (within 0->1)
-                float src = insScene.space.currentZone.getTrackingFor(sourceBlendshape);
                 float target = mapValue(src, inRange.x, inRange.y);
+                if (inverse) target = 1f-target;
 
                 // NOTE: Dampen level of 0 = no damping
                 // Dampen level 1-10 is inverse due to the dampen function taking *speed* as a value.
@@ -149,8 +228,8 @@ public:
                 else inVal = dampen(inVal, target, deltaTime(), cast(float)(11-dampenLevel));
                 
                 // Calculate the output ratio (whatever outRange is)
-                outVal = unmapValue(inVal, outRange.x, outRange.y);   
-                param.value.vector[axis] += param.mapAxis(axis, outVal);
+                outVal = unmapValue(inVal, outRange.x, outRange.y);
+                param.value.vector[axis] += param.unmapAxis(axis, outVal);
                 break;
 
             case BindingType.ExpressionBinding:

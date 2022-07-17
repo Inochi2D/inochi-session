@@ -6,32 +6,133 @@ import session.tracking;
 import inui;
 import inui.widgets;
 import session.log;
+import inmath;
+import std.string;
+import std.uni;
+import std.algorithm.searching;
+
+private {
+    string trackingFilter;
+    const(char)*[] paramNames;
+
+    struct TrackingSource {
+        bool isBone;
+        string name;
+        const(char)* cName;
+    }
+}
+
+void insTrackingPanelRefresh() {
+    trackingFilter = "";
+    paramNames = null;    
+    if (insSceneSelectedSceneItem()) {
+        foreach(ref TrackingBinding binding; insSceneSelectedSceneItem().bindings) {
+            paramNames ~= binding.param.name.toStringz;
+        }
+    }
+}
 
 class TrackingPanel : Panel {
 private:
-    
+    TrackingSource[] sources;
+    string[] indexableSourceNames;
 
-    void ratioBinding(ref TrackingBinding binding) {
-        bool hasTrackingSrc = binding.sourceBlendshapeCStr !is null;
+    void refresh() {
+        auto blendshapes = insScene.space.getAllBlendshapeNames();
+        auto bones = insScene.space.getAllBoneNames();
+        
+        sources.length = blendshapes.length + bones.length;
+        indexableSourceNames.length = sources.length;
+
+        foreach(i, blendshape; blendshapes) {
+            sources[i] = TrackingSource(
+                false,
+                blendshape,
+                blendshape.toStringz
+            );
+            indexableSourceNames[i] = blendshape.toLower;
+        }
+
+        foreach(i, bone; bones) {
+            sources[blendshapes.length+i] = TrackingSource(
+                true,
+                bone,
+                bone.toStringz
+            );
+
+            indexableSourceNames[blendshapes.length+i] = bone.toLower;
+        }
+    }
+
+    void ratioBinding(size_t i, ref TrackingBinding binding) {
+        bool hasTrackingSrc = binding.sourceName.length > 0;
 
         uiImPush(&binding);
             if (hasTrackingSrc && uiImButton(__("Reset"))) {
-                binding.sourceBlendshapeCStr = null;
-                binding.sourceBlendshape = null;
+                binding.sourceName = null;
             }
-            if (uiImBeginComboBox(hasTrackingSrc ? binding.sourceBlendshapeCStr : __("Not tracked"))) {
-                foreach(blendshape; insScene.space.getAllBlendshapeNames) {
-                        bool selected = binding.sourceBlendshape == blendshape[0..$-1];
-                        if (uiImSelectable(blendshape.ptr, selected)) {
-                            insLogInfo(blendshape[0..$-1]);
-                            binding.sourceBlendshapeCStr = blendshape.dup.ptr;
-                            binding.sourceBlendshape = blendshape[0..$-1];
+
+            if (uiImBeginComboBox(hasTrackingSrc ? binding.sourceDisplayName.toStringz : __("Not tracked"))) {
+                if (uiImInputText("", uiImAvailableSpace().x, trackingFilter)) {
+                    trackingFilter = trackingFilter.toLower();
+                }
+
+                uiImDummy(vec2(0, 8));
+
+                
+                foreach(ix, source; sources) {
+                    
+                    if (trackingFilter.length > 0 && !indexableSourceNames[ix].canFind(trackingFilter)) continue;
+
+                    bool selected = binding.sourceName == source.name;
+                    if (source.isBone) {
+                        if (uiImBeginMenu(source.cName)) {
+                            if (uiImMenuItem(__("X"))) {
+                                binding.sourceName = source.name;
+                                binding.sourceType = SourceType.BonePosX;
+                                binding.sourceDisplayName = _("%s (X)").format(binding.sourceName);
+                            }
+                            if (uiImMenuItem(__("Y"))) {
+                                binding.sourceName = source.name;
+                                binding.sourceType = SourceType.BonePosY;
+                                binding.sourceDisplayName = _("%s (Y)").format(binding.sourceName);
+                            }
+                            if (uiImMenuItem(__("Z"))) {
+                                binding.sourceName = source.name;
+                                binding.sourceType = SourceType.BonePosZ;
+                                binding.sourceDisplayName = _("%s (Z)").format(binding.sourceName);
+                            }
+                            if (uiImMenuItem(__("Roll"))) {
+                                binding.sourceName = source.name;
+                                binding.sourceType = SourceType.BoneRotRoll;
+                                binding.sourceDisplayName = _("%s (Roll)").format(binding.sourceName);
+                            }
+                            if (uiImMenuItem(__("Pitch"))) {
+                                binding.sourceName = source.name;
+                                binding.sourceType = SourceType.BoneRotPitch;
+                                binding.sourceDisplayName = _("%s (Pitch)").format(binding.sourceName);
+                            }
+                            if (uiImMenuItem(__("Yaw"))) {
+                                binding.sourceName = source.name;
+                                binding.sourceType = SourceType.BoneRotYaw;
+                                binding.sourceDisplayName = _("%s (Yaw)").format(binding.sourceName);
+                            }
+                            uiImEndMenu();
                         }
+                    } else {
+                        if (uiImSelectable(source.cName, selected)) {
+                            binding.sourceType = SourceType.Blendshape;
+                            binding.sourceName = source.name;
+                            binding.sourceDisplayName = source.name;
+                        }
+                    }
                 }
                 uiImEndComboBox();
             }
 
             if (hasTrackingSrc) {
+                uiImCheckbox(__("Inverse"), binding.inverse);
+
                 uiImLabel(_("Dampen"));
                 uiImDrag(binding.dampenLevel, 0, 10);
 
@@ -39,7 +140,23 @@ private:
                 uiImPush(0);
                     uiImIndent();
                         uiImProgress(binding.inVal);
-                        uiImRange(binding.inRange.x, binding.inRange.y, -1, 1);
+                        switch(binding.sourceType) {
+                            case SourceType.Blendshape:
+                                // TODO: Make all blendshapes in facetrack-d 0->1
+                                uiImRange(binding.inRange.x, binding.inRange.y, -1, 1);
+                                break;
+                            case SourceType.BonePosX:
+                            case SourceType.BonePosY:
+                            case SourceType.BonePosZ:
+                                uiImRange(binding.inRange.x, binding.inRange.y, -float.max, float.max);
+                                break;
+                            case SourceType.BoneRotPitch:
+                            case SourceType.BoneRotRoll:
+                            case SourceType.BoneRotYaw:
+                                uiImRange(binding.inRange.x, binding.inRange.y, -180, 180);
+                                break;
+                            default: assert(0);
+                        }
                     uiImUnindent();
                 uiImPop();
                 
@@ -60,16 +177,17 @@ protected:
         if (item) {
             if (uiImButton(__("Refresh"))) {
                 insScene.space.refresh();
+                refresh();
             }
 
-            foreach(ref TrackingBinding binding; item.bindings) {
-                if (!uiImHeader(binding.nameCStr, true)) continue;
+            foreach(i, ref TrackingBinding binding; item.bindings) {
+                if (!uiImHeader(binding.name.toStringz, true)) continue;
 
                 uiImIndent();
                     switch(binding.type) {
 
                         case BindingType.RatioBinding:
-                            ratioBinding(binding);
+                            ratioBinding(i, binding);
                             break;
 
                         case BindingType.ExpressionBinding:

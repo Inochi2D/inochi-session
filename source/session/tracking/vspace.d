@@ -1,6 +1,11 @@
 module session.tracking.vspace;
 import session.tracking.sources;
 import session.log;
+import std.uni : toLower;
+import std.string;
+
+import inmath;
+public import ft.data : Bone;
 
 /**
     A virtual tracking space
@@ -12,9 +17,11 @@ private:
 
     IBindingSource[] allSources;
     string[] allBlendshapes;
+    string[] allBones;
     void rebuildZoneList() {
         allSources.length = 0;
         allBlendshapes.length = 0;
+        allBones.length = 0;
 
         foreach(ref zone; zones) {
             insLogInfo("Found zone %s", zone.name);
@@ -26,7 +33,13 @@ private:
             import std.algorithm.searching : canFind;
             foreach(bskey; source.getBlendshapeKeys()) {
                 if (!allBlendshapes.canFind(bskey)) {
-                    allBlendshapes ~= bskey~"\0";
+                    allBlendshapes ~= bskey;
+                }
+            }
+
+            foreach(bskey; source.getBoneKeys()) {
+                if (!allBones.canFind(bskey)) {
+                    allBones ~= bskey;
                 }
             }
         }
@@ -53,6 +66,13 @@ public:
     */
     string[] getAllBlendshapeNames() {
         return allBlendshapes;
+    }
+
+    /**
+        Returns a list of the active blendshapes
+    */
+    string[] getAllBoneNames() {
+        return allBones;
     }
 
     /**
@@ -141,9 +161,9 @@ public:
     IBindingSource[] sources;
 
     /**
-        Gets the tracking data for a specified name
+        Gets the tracking data for a specified blendshape name
     */
-    float getTrackingFor(string name) {
+    float getBlendshapeFor(string name) {
         float sum = 0;
         float count = 0;
         foreach(source; sources) {
@@ -155,5 +175,29 @@ public:
 
         if (sum == 0 || count == 0) return 0;
         return sum/count;
+    }
+
+    /**
+        Gets the tracking data for a specified bone name
+    */
+    Bone getBoneFor(string name) {
+        Bone sum;
+        sum.position = sources[0].getBone(name).position;
+        sum.rotation = sources[0].getBone(name).rotation;
+
+        if (sources.length > 1) {
+            float count = 1;
+            foreach(source; sources[1..$]) {
+                if (name in source.getBones) {
+                    count += 1;
+
+                    Bone b = source.getBone(name);
+                    sum.position += b.position; 
+                    sum.rotation = slerp(sum.rotation, b.rotation, 1f/(count+1));
+                }
+            }
+            sum.position /= count;
+        }
+        return sum;
     }
 }
