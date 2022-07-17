@@ -29,7 +29,6 @@ private {
 class InochiSessionWindow : InApplicationWindow {
 private:
     Adaptor adaptor;
-    bool showUI = true;
     Texture logo;
 
 protected:
@@ -42,8 +41,8 @@ protected:
 
     override
     void onUpdate() {
-        if (inInputMouseDoubleClicked(MouseButton.Left)) showUI = !showUI;
         if (!inInputIsInUI()) {
+            if (inInputMouseDoubleClicked(MouseButton.Left)) this.showUI = !showUI;
             insInteractWithScene();
         }
 
@@ -98,8 +97,7 @@ public:
         foreach(arg; args) {
             import std.file : exists;
             if (!exists(arg)) continue;
-
-            insPuppets ~= inLoadPuppet(arg);
+            insSceneAddPuppet(inLoadPuppet(arg));
         }
 
         uiImDialog(

@@ -14,6 +14,7 @@ import std.stdio : writeln;
 import session.plugins;
 import session.log;
 import session.ver;
+import session.scene;
 
 void main(string[] args) {
     insLogInfo("Inochi Session %s, args=%s", INS_VERSION, args[1..$]);
@@ -29,6 +30,7 @@ void main(string[] args) {
     
     // Initialize UI
     inInitUI();
+    insSceneInit();
 
     // Open window and init Inochi2D
     auto window = new InochiSessionWindow(args[1..$]);
@@ -38,5 +40,6 @@ void main(string[] args) {
         window.update();
     }
     
+    insSceneCleanup();
     inSettingsSave();
 }

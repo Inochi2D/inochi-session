@@ -7,7 +7,7 @@
 module session.plugins.luapi.gui;
 import lumars;
 import std.string;
-import inui.widgets.im;
+import inui.widgets;
 
 void inPluginRegisterGUI(LuaState* state) {
     state.register!(

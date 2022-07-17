@@ -9,23 +9,111 @@ import inochi2d;
 import inmath;
 import inui.input;
 import inui;
+import session.tracking;
+import session.tracking.vspace;
+import session.log;
+import std.string;
+
+struct Scene {
+    VirtualSpace space;
+
+    SceneItem[] sceneItems;
+}
+
+struct SceneItem {
+    Puppet puppet;
+
+    TrackingBinding[] bindings;
+}
 
 /**
     List of puppets
 */
-Puppet[] insPuppets;
+Scene insScene;
+
+void insSceneAddPuppet(Puppet puppet) {
+    import std.format : format;
+    SceneItem item;
+    item.puppet = puppet;
+    mforeach: foreach(ref Parameter param; puppet.parameters) {
+
+        // Skip all params affected by physics
+        foreach(ref Driver driver; puppet.getDrivers()) 
+            if (driver.affectsParameter(param)) continue mforeach;
+        
+        // Loop over X/Y for parameter
+        int imax = param.isVec2 ? 2 : 1;
+        for (int i = 0; i < imax; i++) {
+            TrackingBinding binding = new TrackingBinding();
+            binding.param = param;
+            binding.axis = i;
+            binding.type = BindingType.RatioBinding;
+            binding.inRange = vec2(0, 1);
+            binding.outRange = vec2(0, 1);
+
+            // binding name assignment
+            if (param.isVec2) binding.name = "%s (%s)".format(param.name, i == 0 ? "X" : "Y");
+            else binding.name = param.name;
+            binding.nameCStr = binding.name.toStringz;
+
+            item.bindings ~= binding;
+        }
+    }
+
+    insScene.sceneItems ~= item;
+}
+
+void insSceneInit() {
+    insScene.space = new VirtualSpace();
+
+    import ft.adaptors;
+
+    // DEBUG
+    VirtualSpaceZone zone = new VirtualSpaceZone("MAIN");
+    insScene.space.addZone(zone);
+}
+
+void insSceneCleanup() {
+    foreach(ref source; insScene.space.getAllSources()) {
+        source.onDispose();
+    }
+}
 
 void insUpdateScene() {
     inUpdate();
+
+    // Update virtual spaces
+    insScene.space.update();
+
     inBeginScene();
-        foreach(ref puppet; insPuppets) {
-            puppet.update();
-            puppet.draw();
+        
+
+        // Update every scene item
+        foreach(ref sceneItem; insScene.sceneItems) {
+            foreach(ref binding; sceneItem.bindings) {
+                binding.update();
+            }
+
+            sceneItem.puppet.update();
+            sceneItem.puppet.draw();
+            
+            foreach(ref binding; sceneItem.bindings) {
+                binding.lateUpdate();
+            }
         }
     inEndScene();
 }
 
+/**
+    Returns a pointer to the active scene item
+*/
+SceneItem* insSceneSelectedSceneItem() {
+    if (selectedPuppet < 0 || selectedPuppet > insScene.sceneItems.length) return null;
+    return &insScene.sceneItems[selectedPuppet];
+}
+
 private {
+    ptrdiff_t selectedPuppet = -1;
     Puppet draggingPuppet;
     vec2 draggingPuppetStartPos;
     bool hasDonePuppetSelect;
@@ -59,7 +147,10 @@ void insInteractWithScene() {
 
             // For performance sake we should disable bounds calculation after we're done getting drag state.
             inSetUpdateBounds(true);
-                foreach(ref puppet; insPuppets) {
+                bool selectedAny = false;
+                foreach(i, ref sceneItem; insScene.sceneItems) {
+
+                    auto puppet = sceneItem.puppet;
 
                     // Calculate on-screen bounds of the object
                     vec4 lbounds = puppet.root.getCombinedBounds!true();
@@ -73,7 +164,13 @@ void insInteractWithScene() {
                         targetScale = puppet.root.localTransform.scale.x;
                         targetPos = draggingPuppetStartPos;
                         draggingPuppet = puppet;
+                        selectedPuppet = i;
+                        selectedAny = true;
                     }
+                }
+                if (!selectedAny) {
+                    selectedPuppet = -1;
+                    draggingPuppet = null;
                 }
             inSetUpdateBounds(false);
             
