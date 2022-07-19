@@ -6,3 +6,4 @@
 */
 module session.windows;
 public import session.windows.main;
+public import session.windows.spaceedit;

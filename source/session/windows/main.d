@@ -5,9 +5,12 @@
     Authors: Luna Nielsen
 */
 module session.windows.main;
+import session.windows;
 import session.scene;
 import inui;
 import inui.widgets;
+import inui.toolwindow;
+import inui.panel;
 import inui.input;
 import inochi2d;
 import ft;
@@ -55,7 +58,32 @@ protected:
                     uiImEndMenu();
                 }
 
-                uiImLabel(_("Double-click to show/hide"));
+                if (uiImBeginMenu(__("View"))) {
+
+                    uiImLabelColored(_("Panels"), vec4(0.8, 0.3, 0.3, 1));
+                    uiImSeperator();
+
+                    foreach(panel; inPanels) {
+                        if (uiImMenuItem(panel.displayNameC, "", panel.visible)) {
+                            panel.visible = !panel.visible;
+                        }
+                    }
+                    
+                    uiImNewLine();
+
+                    uiImLabelColored(_("Configuration"), vec4(0.8, 0.3, 0.3, 1));
+                    uiImSeperator();
+                    if (uiImMenuItem(__("Virtual Spaces"))) {
+                        inPushToolWindow(new SpaceEditor());
+                    }
+
+                    uiImEndMenu();
+                }
+
+                uiImDummy(vec2(4, 0));
+                uiImSeperator();
+                uiImDummy(vec2(4, 0));
+                uiImLabel(_("Double-click to show/hide UI"));
 
                 // DONATE BUTTON
                 avail = uiImAvailableSpace();
