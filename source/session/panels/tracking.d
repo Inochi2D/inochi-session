@@ -73,7 +73,7 @@ private:
             }
 
             if (uiImBeginComboBox(hasTrackingSrc ? binding.sourceDisplayName.toStringz : __("Not tracked"))) {
-                if (uiImInputText("", uiImAvailableSpace().x, trackingFilter)) {
+                if (uiImInputText("###FILTER", uiImAvailableSpace().x, trackingFilter)) {
                     trackingFilter = trackingFilter.toLower();
                 }
 
