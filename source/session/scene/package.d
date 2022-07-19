@@ -33,6 +33,27 @@ struct SceneItem {
 Scene insScene;
 
 void insSceneAddPuppet(Puppet puppet) {
+    struct LinkSrcDst {
+        Parameter src;
+        Parameter dst;
+        int inAxis;
+        int outAxis;
+    }
+    LinkSrcDst[] srcDst;
+
+    foreach(param; puppet.parameters) {
+        foreach(ref ParamLink link; param.links) {
+            srcDst ~= LinkSrcDst(param, link.link, cast(int)link.outAxis);
+        }
+    }
+
+    bool isParamAxisLinked(Parameter dst, int axis) {
+        foreach(ref LinkSrcDst link; srcDst) {
+            if (link.dst == dst && axis == link.outAxis) return true;
+        }
+        return false;
+    }
+
     import std.format : format;
     SceneItem item;
     item.puppet = puppet;
@@ -42,9 +63,12 @@ void insSceneAddPuppet(Puppet puppet) {
         foreach(ref Driver driver; puppet.getDrivers()) 
             if (driver.affectsParameter(param)) continue mforeach;
         
+
         // Loop over X/Y for parameter
         int imax = param.isVec2 ? 2 : 1;
         for (int i = 0; i < imax; i++) {
+            if (isParamAxisLinked(param, i)) continue;
+            
             TrackingBinding binding = new TrackingBinding();
             binding.param = param;
             binding.axis = i;
