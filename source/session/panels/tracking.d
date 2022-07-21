@@ -37,7 +37,7 @@ private:
     TrackingSource[] sources;
     string[] indexableSourceNames;
 
-    void refresh() {
+    void refresh(ref TrackingBinding[] trackingBindings) {
         auto blendshapes = insScene.space.getAllBlendshapeNames();
         auto bones = insScene.space.getAllBoneNames();
         
@@ -61,6 +61,23 @@ private:
             );
 
             indexableSourceNames[blendshapes.length+i] = bone.toLower;
+        }
+
+        // Add any bindings unnacounted for which are stored in the model.
+        trkMain: foreach(bind; trackingBindings) {
+            TrackingSource src = TrackingSource(
+                bind.sourceType != SourceType.Blendshape,
+                bind.sourceName,
+                bind.sourceName.toStringz
+            );
+
+            // Skip anything we already know
+            foreach(xsrc; sources) {
+                if (xsrc.isBone == src.isBone && xsrc.name == src.name) continue trkMain;
+            }
+
+            sources ~= src;
+            indexableSourceNames ~= src.name.toLower;
         }
     }
 
@@ -90,32 +107,32 @@ private:
                             if (uiImMenuItem(__("X"))) {
                                 binding.sourceName = source.name;
                                 binding.sourceType = SourceType.BonePosX;
-                                binding.sourceDisplayName = _("%s (X)").format(binding.sourceName);
+                                binding.createSourceDisplayName();
                             }
                             if (uiImMenuItem(__("Y"))) {
                                 binding.sourceName = source.name;
                                 binding.sourceType = SourceType.BonePosY;
-                                binding.sourceDisplayName = _("%s (Y)").format(binding.sourceName);
+                                binding.createSourceDisplayName();
                             }
                             if (uiImMenuItem(__("Z"))) {
                                 binding.sourceName = source.name;
                                 binding.sourceType = SourceType.BonePosZ;
-                                binding.sourceDisplayName = _("%s (Z)").format(binding.sourceName);
+                                binding.createSourceDisplayName();
                             }
                             if (uiImMenuItem(__("Roll"))) {
                                 binding.sourceName = source.name;
                                 binding.sourceType = SourceType.BoneRotRoll;
-                                binding.sourceDisplayName = _("%s (Roll)").format(binding.sourceName);
+                                binding.createSourceDisplayName();
                             }
                             if (uiImMenuItem(__("Pitch"))) {
                                 binding.sourceName = source.name;
                                 binding.sourceType = SourceType.BoneRotPitch;
-                                binding.sourceDisplayName = _("%s (Pitch)").format(binding.sourceName);
+                                binding.createSourceDisplayName();
                             }
                             if (uiImMenuItem(__("Yaw"))) {
                                 binding.sourceName = source.name;
                                 binding.sourceType = SourceType.BoneRotYaw;
-                                binding.sourceDisplayName = _("%s (Yaw)").format(binding.sourceName);
+                                binding.createSourceDisplayName();
                             }
                             uiImEndMenu();
                         }
@@ -123,7 +140,7 @@ private:
                         if (uiImSelectable(source.cName, selected)) {
                             binding.sourceType = SourceType.Blendshape;
                             binding.sourceName = source.name;
-                            binding.sourceDisplayName = source.name;
+                            binding.createSourceDisplayName();
                         }
                     }
                 }
@@ -177,7 +194,7 @@ protected:
         if (item) {
             if (uiImButton(__("Refresh"))) {
                 insScene.space.refresh();
-                refresh();
+                refresh(item.bindings);
             }
 
             uiImSameLine(0, 4);

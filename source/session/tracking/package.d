@@ -11,6 +11,8 @@ import session.scene;
 import inochi2d;
 import inochi2d.math.serialization;
 import fghj;
+import i18n;
+import std.format;
 
 /**
     Binding Type
@@ -181,6 +183,8 @@ public:
             serializer.putValue(name);
             serializer.putKey("sourceName");
             serializer.putValue(sourceName);
+            serializer.putKey("sourceDisplayName");
+            serializer.putValue(sourceDisplayName);
             serializer.putKey("sourceType");
             serializer.serializeValue(sourceType);
             serializer.putKey("bindingType");
@@ -238,6 +242,8 @@ public:
                 break;
             default: break;
         }
+        
+        this.createSourceDisplayName();
         
         return null;
     }
@@ -333,5 +339,32 @@ public:
     */
     void lateUpdate() {
         param.value.vector[axis] += round(sum / weights);
+    }
+
+    void createSourceDisplayName() {
+        switch(sourceType) {
+            case SourceType.Blendshape:
+                sourceDisplayName = sourceName;
+                break;
+            case SourceType.BonePosX:
+                sourceDisplayName = _("%s (X)").format(sourceName);
+                break;
+            case SourceType.BonePosY:
+                sourceDisplayName = _("%s (Y)").format(sourceName);
+                break;
+            case SourceType.BonePosZ:
+                sourceDisplayName = _("%s (Z)").format(sourceName);
+                break;
+            case SourceType.BoneRotRoll:
+                sourceDisplayName = _("%s (Roll)").format(sourceName);
+                break;
+            case SourceType.BoneRotPitch:
+                sourceDisplayName = _("%s (Pitch)").format(sourceName);
+                break;
+            case SourceType.BoneRotYaw:
+                sourceDisplayName = _("%s (Yaw)").format(sourceName);
+                break;
+            default: assert(0);    
+        }
     }
 }
