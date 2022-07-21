@@ -281,7 +281,7 @@ public:
 
         float sum = 0;
         float count = 0;
-        foreach(source; sources) {
+        foreach(ref source; sources) {
             if (!source) continue;
             
             if (name in source.getBlendshapes) {
@@ -298,15 +298,18 @@ public:
         Gets the tracking data for a specified bone name
     */
     Bone getBoneFor(string name) {
-        Bone sum;
-        if (sources.length == 0) return sum;
+        Bone sum = Bone(vec3(0), quat.identity);
+
+        // Edgecases that may cause crashes, avoid them
+        if (sources.length == 0 || !sources[0]) return sum;
+        if (name !in sources[0].getBones) return sum;
         
         sum.position = sources[0].getBones()[name].position;
         sum.rotation = sources[0].getBones()[name].rotation;
 
         if (sources.length > 1) {
             float count = 1;
-            foreach(source; sources[1..$]) {
+            foreach(ref source; sources[1..$]) {
                 if (name in source.getBones) {
                     count += 1;
 
