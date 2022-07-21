@@ -250,6 +250,16 @@ void insInteractWithScene() {
     
     // Apply Movement + Scaling
     if (draggingPuppet) {
+
+        import bindbc.imgui : igIsKeyDown, ImGuiKey;
+        if (igIsKeyDown(ImGuiKey.LeftCtrl) || igIsKeyDown(ImGuiKey.RightCtrl)) {
+            targetScale = clamp(
+                draggingPuppet.root.localTransform.scale.x+(inInputMouseScrollDelta()), 
+                0.25,
+                1000
+            );
+        }
+
         draggingPuppet.root.localTransform.translation = dampen(
             draggingPuppet.root.localTransform.translation,
             vec3(targetPos, 0),
