@@ -88,19 +88,14 @@ void insSceneAddPuppet(Puppet puppet) {
 }
 
 void insSceneInit() {
-    insScene.space = new VirtualSpace();
-
-    import ft.adaptors;
-
-    // DEBUG
-    VirtualSpaceZone zone = new VirtualSpaceZone("MAIN");
-    zone.sources ~= new FTSource(new VTSAdaptor, ["appName": "inochi-session", "phoneIP": "10.0.0.146"]);
-    insScene.space.addZone(zone);
+    insScene.space = insLoadVSpace();
 }
 
 void insSceneCleanup() {
+    insSaveVSpace(insScene.space);
+
     foreach(ref source; insScene.space.getAllSources()) {
-        source.onDispose();
+        if (source) destroy(source);
     }
 }
 

@@ -1,11 +1,25 @@
 module session.tracking.vspace;
-import session.tracking.sources;
 import session.log;
 import std.uni : toLower;
 import std.string;
 
 import inmath;
 public import ft.data : Bone;
+public import ft;
+import inui.core.settings;
+import inui.core.utils;
+import fghj;
+
+
+void insSaveVSpace(ref VirtualSpace space) {
+    inSettingsSet("space", space);
+    inSettingsSave();
+}
+
+VirtualSpace insLoadVSpace() {
+    if (!inSettingsCanGet("space")) return new VirtualSpace();
+    return inSettingsGet!VirtualSpace("space", new VirtualSpace());
+}
 
 /**
     A virtual tracking space
@@ -15,7 +29,7 @@ private:
     VirtualSpaceZone[] zones;
     size_t activeZone;
 
-    IBindingSource[] allSources;
+    Adaptor[] allSources;
     string[] allBlendshapes;
     string[] allBones;
     void rebuildZoneList() {
@@ -25,19 +39,21 @@ private:
 
         foreach(ref zone; zones) {
             insLogInfo("Found zone %s", zone.name);
-            allSources ~= zone.sources;
+            if (zone.sources && zone.sources.length > 0) allSources ~= zone.sources;
         }
 
         foreach(ref source; allSources) {
-            source.update();
+            if (!source) continue;
+
+            source.poll();
             import std.algorithm.searching : canFind;
-            foreach(bskey; source.getBlendshapeKeys()) {
+            foreach(bskey; source.getBlendshapes().keys) {
                 if (!allBlendshapes.canFind(bskey)) {
                     allBlendshapes ~= bskey;
                 }
             }
 
-            foreach(bskey; source.getBoneKeys()) {
+            foreach(bskey; source.getBones().keys) {
                 if (!allBones.canFind(bskey)) {
                     allBones ~= bskey;
                 }
@@ -46,6 +62,34 @@ private:
     }
 
 public:
+    this() { }
+
+    void serialize(S)(ref S serializer) {
+        insLogInfo("Saving Virtual Space...");
+        auto state = serializer.objectBegin;
+            serializer.putKey("zones");
+            auto arrstate = serializer.arrayBegin();
+                foreach(ref zone; zones) {
+                    insLogInfo("Saving Zone %s...", zone.name);
+                    serializer.elemBegin();
+                    serializer.serializeValue(zone);
+                }
+            serializer.arrayEnd(arrstate);
+        serializer.objectEnd(state);
+    }
+
+    SerdeException deserializeFromFghj(Fghj data) {
+        if (!data["zones"].isEmpty) {
+            foreach(child; data["zones"].byElement) {
+                VirtualSpaceZone zone = new VirtualSpaceZone();
+                child.deserializeValue(zone);
+
+                zones ~= zone;
+            }
+        }
+        rebuildZoneList();
+        return null;
+    }
 
     /**
         Gets the current zone tracking is happening in
@@ -78,7 +122,7 @@ public:
     /**
         Returns a list of the sources
     */
-    ref IBindingSource[] getAllSources() {
+    ref Adaptor[] getAllSources() {
         return allSources;
     }
 
@@ -103,6 +147,17 @@ public:
         rebuildZoneList();
     }
 
+    /**
+        Removes zone
+    */
+    void removeZoneAt(size_t idx) {
+        import std.algorithm.mutation : remove;
+        if (idx >= 0 && idx < zones.length) {
+            zones = zones.remove(idx);
+        }
+        rebuildZoneList();
+    }
+
     void refresh() {
         rebuildZoneList();
     }
@@ -122,14 +177,16 @@ public:
         // Update all sources
         foreach(ref zone; zones) {
             foreach(ref source; zone.sources) {
-                source.update();
+                if (source) source.poll();
             }
         }
 
         // Update zones
-        if (!currentZone.sources[0].isTrackingActive) {
+        if (currentZone.sources.length > 0 && currentZone.sources[0] && !currentZone.sources[0].isReceivingData) {
             foreach(i, ref zone; zones) {
-                if (zone.sources[0].isTrackingActive) {
+                if (zone.sources.length == 0) continue;
+                
+                if (zone.sources[0].isReceivingData) {
                     activeZone = i;
                 }
             }
@@ -150,6 +207,62 @@ public:
         this.name = name;
     }
 
+    
+    void serialize(S)(ref S serializer) {
+        auto state = serializer.objectBegin;
+            serializer.putKey("name");
+            serializer.putValue(name);
+            serializer.putKey("sources");
+            auto arrstate = serializer.arrayBegin();
+                foreach(ref Adaptor source; sources) {
+                    if (!source) continue;
+
+                    serializer.elemBegin();
+
+                    auto sstate = serializer.objectBegin;
+                        serializer.putKey("type");
+                        serializer.putValue(source.getAdaptorName());
+                        if (source.getOptions !is null) {
+                            serializer.putKey("options");
+                            serializer.serializeValue(source.getOptions());
+                        }
+                    serializer.objectEnd(sstate);
+                }
+            serializer.arrayEnd(arrstate);
+        serializer.objectEnd(state);
+    }
+    
+    SerdeException deserializeFromFghj(Fghj data) {
+        data["name"].deserializeValue(name);
+        if (!data["sources"].isEmpty) {
+            foreach(child; data["sources"].byElement) {
+                string type;
+                string[string] xdata;
+                child["type"].deserializeValue(type);
+                try {
+                    Adaptor adaptor;
+                    if (!child["options"].isEmpty) {
+                        child["options"].deserializeValue(xdata);
+
+                        // NOTE: inochi-session should ALWAYS be the appName.
+                        xdata["appName"] = "inochi-session";
+                        adaptor = ftCreateAdaptor(type, xdata);
+                    } else {
+                        
+                        // NOTE: inochi-session should ALWAYS be the appName.
+                        xdata["appName"] = "inochi-session";
+                        adaptor = ftCreateAdaptor(type, xdata);
+                    }
+                    
+                    if (adaptor) sources ~= adaptor;
+                } catch (Exception ex) {
+                    insLogErr("%s: %s", name, ex.msg);
+                }
+            }
+        }
+        return null;
+    }
+
     /**
         Zone name
     */
@@ -158,17 +271,21 @@ public:
     /**
         The sources this virtual space is getting data from
     */
-    IBindingSource[] sources;
+    Adaptor[] sources;
 
     /**
         Gets the tracking data for a specified blendshape name
     */
     float getBlendshapeFor(string name) {
+        if (sources.length == 0) return 0;
+
         float sum = 0;
         float count = 0;
         foreach(source; sources) {
+            if (!source) continue;
+            
             if (name in source.getBlendshapes) {
-                sum += source.getBlendshape(name);
+                sum += source.getBlendshapes()[name];
                 count += 1;
             }
         }
@@ -182,8 +299,10 @@ public:
     */
     Bone getBoneFor(string name) {
         Bone sum;
-        sum.position = sources[0].getBone(name).position;
-        sum.rotation = sources[0].getBone(name).rotation;
+        if (sources.length == 0) return sum;
+        
+        sum.position = sources[0].getBones()[name].position;
+        sum.rotation = sources[0].getBones()[name].rotation;
 
         if (sources.length > 1) {
             float count = 1;
@@ -191,7 +310,7 @@ public:
                 if (name in source.getBones) {
                     count += 1;
 
-                    Bone b = source.getBone(name);
+                    Bone b = source.getBones()[name];
                     sum.position += b.position; 
                     sum.rotation = slerp(sum.rotation, b.rotation, 1f/(count+1));
                 }
