@@ -34,6 +34,18 @@ private:
     Adaptor adaptor;
     Texture logo;
 
+    void loadModels(string[] args) {
+        foreach(arg; args) {
+            import std.file : exists;
+            if (!exists(arg)) continue;
+            try {
+                insSceneAddPuppet(arg, inLoadPuppet(arg));
+            } catch(Exception ex) {
+                uiImDialog(__("Error"), "Could not load %s, %s".format(arg, ex.msg));
+            }
+        }
+    }
+
 protected:
     override
     void onEarlyUpdate() {
@@ -47,6 +59,10 @@ protected:
         if (!inInputIsInUI()) {
             if (inInputMouseDoubleClicked(MouseButton.Left)) this.showUI = !showUI;
             insInteractWithScene();
+        }
+
+        if (getDraggedFiles().length > 0) {
+            loadModels(getDraggedFiles());
         }
 
         if (showUI) {
@@ -122,11 +138,7 @@ public:
         inSetViewport(windowSettings.width, windowSettings.height);
 
         // Preload any specified models
-        foreach(arg; args) {
-            import std.file : exists;
-            if (!exists(arg)) continue;
-            insSceneAddPuppet(arg, inLoadPuppet(arg));
-        }
+        loadModels(args);
 
         uiImDialog(
             __("Inochi Session"), 
