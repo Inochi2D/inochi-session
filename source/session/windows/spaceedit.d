@@ -53,6 +53,9 @@ private:
 
         if (uiImBeginPopup("AdaptorPopup")) {
             if (uiImMenuItem(__("Delete"))) {
+
+                // stop source on delete
+                if (editingZone.sources[idx]) editingZone.sources[idx].stop();
                 editingZone.sources = editingZone.sources.remove(idx);
             }
             uiImEndPopup();
@@ -65,9 +68,41 @@ private:
 
         if (uiImBeginPopup("AdaptorPopup")) {
             if (uiImMenuItem(__("Delete"))) {
+                
+                // stop ALL sources on delete
+                foreach(ref source; insScene.space.getZones()[idx].sources) {
+                    if (source) source.stop();
+                }
                 insScene.space.removeZoneAt(idx);
             }
             uiImEndPopup();
+        }
+    }
+
+    void adaptorSelect(size_t i, ref Adaptor source, const(char)* adaptorName) {
+        if (uiImBeginComboBox(adaptorName)) {
+            if (uiImSelectable("VTubeStudio")) {
+                if (source) source.stop();
+
+                source = new VTSAdaptor();
+                editingZone.sources[i] = source;
+                refreshOptionsList();
+            }
+            if (uiImSelectable("VMC")) {
+                if (source) source.stop();
+
+                source = new VMCAdaptor();
+                editingZone.sources[i] = source;
+                refreshOptionsList();
+            }
+            if (uiImSelectable("OpenSeeFace")) {
+                if (source) source.stop();
+
+                source = new OSFAdaptor();
+                editingZone.sources[i] = source;
+                refreshOptionsList();
+            }
+            uiImEndComboBox();
         }
     }
 
@@ -114,29 +149,11 @@ public:
                                 auto source = editingZone.sources[i];
                                 const(char)* adaptorName = source is null ? __("Unset") : source.getAdaptorName().toStringz;
 
-                                
                                 if (source is null) {
                                     if (uiImHeader(adaptorName, true)) {
                                         adaptorMenu(i);
                                         uiImIndent();
-                                            if (uiImBeginComboBox(adaptorName)) {
-                                                if (uiImSelectable("VTubeStudio")) {
-                                                    if (editingZone.sources[i]) editingZone.sources[i].stop();
-                                                    editingZone.sources[i] = new VTSAdaptor();
-                                                    refreshOptionsList();
-                                                }
-                                                if (uiImSelectable("VMC")) {
-                                                    if (editingZone.sources[i]) editingZone.sources[i].stop();
-                                                    editingZone.sources[i] = new VMCAdaptor();
-                                                    refreshOptionsList();
-                                                }
-                                                if (uiImSelectable("OpenSeeFace")) {
-                                                    if (editingZone.sources[i]) editingZone.sources[i].stop();
-                                                    editingZone.sources[i] = new OSFAdaptor();
-                                                    refreshOptionsList();
-                                                }
-                                                uiImEndComboBox();
-                                            }
+                                            adaptorSelect(i, source, adaptorName);
                                         uiImUnindent();
                                     } else {
                                         adaptorMenu(i);
@@ -146,30 +163,8 @@ public:
                                         adaptorMenu(i);
                                         uiImIndent();
                                             avail = uiImAvailableSpace();
-                                            if (uiImBeginComboBox(adaptorName)) {
-                                                if (uiImSelectable("VTubeStudio")) {
-                                                    if (editingZone.sources[i]) editingZone.sources[i].stop();
-
-                                                    source = new VTSAdaptor();
-                                                    editingZone.sources[i] = source;
-                                                    refreshOptionsList();
-                                                }
-                                                if (uiImSelectable("VMC")) {
-                                                    if (editingZone.sources[i]) editingZone.sources[i].stop();
-
-                                                    source = new VMCAdaptor();
-                                                    editingZone.sources[i] = source;
-                                                    refreshOptionsList();
-                                                }
-                                                if (uiImSelectable("OpenSeeFace")) {
-                                                    if (editingZone.sources[i]) editingZone.sources[i].stop();
-
-                                                    source = new OSFAdaptor();
-                                                    editingZone.sources[i] = source;
-                                                    refreshOptionsList();
-                                                }
-                                                uiImEndComboBox();
-                                            }
+                                            
+                                            adaptorSelect(i, source, adaptorName);
 
                                             foreach(option; source.getOptionNames()) {
                                                 if (option == "appName") continue;
@@ -180,12 +175,8 @@ public:
                                             if (uiImButton(__("Save Changes"))) {
                                                 try {
                                                     source.setOptions(options[source]);
-                                                    if (source.isRunning()) {
-                                                        source.stop();
-                                                        source.start();
-                                                    } else {
-                                                        source.start();
-                                                    }
+                                                    source.stop();
+                                                    source.start();
                                                 } catch(Exception ex) {
                                                     uiImDialog(__("Error"), ex.msg);
                                                 }
