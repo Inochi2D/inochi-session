@@ -9,6 +9,7 @@ import session.tracking.expr;
 import session.tracking.vspace;
 import session.scene;
 import inochi2d;
+import inochi2d.math.serialization;
 import fghj;
 
 /**
@@ -79,11 +80,14 @@ enum SourceType {
 */
 class TrackingBinding {
 private:
+    // UUID of param to map to
+    uint paramUUID;
+
     // Sum of weighted plugin values
-    float sum;
+    float sum = 0;
 
     // Combined value of weights
-    float weights;
+    float weights = 0;
 
     /**
         Maps an input value to an offset (0.0->1.0)
@@ -146,10 +150,10 @@ public:
     vec2 outRange;
 
     /// Last input value
-    float inVal;
+    float inVal = 0;
 
     /// Last output value
-    float outVal;
+    float outVal = 0;
 
     /**
         Weights the user has set for each plugin
@@ -170,6 +174,80 @@ public:
         Whether to inverse the binding
     */
     bool inverse;
+
+    void serialize(S)(ref S serializer) {
+        auto state = serializer.objectBegin;
+            serializer.putKey("name");
+            serializer.putValue(name);
+            serializer.putKey("sourceName");
+            serializer.putValue(sourceName);
+            serializer.putKey("sourceType");
+            serializer.serializeValue(sourceType);
+            serializer.putKey("bindingType");
+            serializer.serializeValue(type);
+            serializer.putKey("param");
+            serializer.serializeValue(param.uuid);
+
+            switch(type) {
+                case BindingType.RatioBinding:
+                    serializer.putKey("axis");
+                    serializer.putValue(axis);
+                    serializer.putKey("dampenLevel");
+                    serializer.putValue(dampenLevel);
+                    serializer.putKey("inverse");
+                    serializer.putValue(inverse);
+
+                    serializer.putKey("inRange");
+                    inRange.serialize(serializer);
+                    serializer.putKey("outRange");
+                    outRange.serialize(serializer);
+                    break;
+                case BindingType.ExpressionBinding:
+                    serializer.putKey("signature");
+                    serializer.putValue(expr.signature());
+                    serializer.putKey("expression");
+                    serializer.putValue(expr.expression());
+                    break;
+                default: break;
+            }
+
+        serializer.objectEnd(state);
+    }
+    
+    SerdeException deserializeFromFghj(Fghj data) {
+        data["name"].deserializeValue(name);
+        data["sourceName"].deserializeValue(sourceName);
+        data["sourceType"].deserializeValue(sourceType);
+        data["bindingType"].deserializeValue(type);
+        data["param"].deserializeValue(paramUUID);
+
+        switch(type) {
+            case BindingType.RatioBinding:
+                data["axis"].deserializeValue(axis);
+                data["dampenLevel"].deserializeValue(dampenLevel);
+                data["inverse"].deserializeValue(inverse);
+                inRange.deserialize(data["inRange"]);
+                outRange.deserialize(data["outRange"]);
+                break;
+            case BindingType.ExpressionBinding:
+                string exprSig;
+                string exprStr;
+                data["signature"].deserializeValue(exprSig);
+                data["expression"].deserializeValue(exprStr);
+                expr = Expression(exprSig, exprStr);
+                break;
+            default: break;
+        }
+        
+        return null;
+    }
+
+    /**
+        Finalizes the tracking binding
+    */
+    void finalize(ref Puppet puppet) {
+        param = puppet.findParameter(paramUUID);
+    }
 
     /**
         Updates the parameter binding
