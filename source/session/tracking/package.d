@@ -11,8 +11,6 @@ import session.scene;
 import inochi2d;
 import fghj;
 
-public import session.tracking.sources;
-
 /**
     Binding Type
 */
