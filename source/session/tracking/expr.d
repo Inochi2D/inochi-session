@@ -25,6 +25,17 @@ private:
     string expressionSource_;
 
 public:
+    this(string signature, string source) {
+        this.exprName_ = signature;
+        this.expressionSource_ = source;
+    }
+
+    /**
+        Gets the expression to evaluate
+    */
+    string signature() {
+        return exprName_;
+    }
 
     /**
         Gets the expression to evaluate

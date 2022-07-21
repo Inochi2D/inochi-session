@@ -125,7 +125,7 @@ public:
         foreach(arg; args) {
             import std.file : exists;
             if (!exists(arg)) continue;
-            insSceneAddPuppet(inLoadPuppet(arg));
+            insSceneAddPuppet(arg, inLoadPuppet(arg));
         }
 
         uiImDialog(

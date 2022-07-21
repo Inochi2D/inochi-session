@@ -180,6 +180,12 @@ protected:
                 refresh();
             }
 
+            uiImSameLine(0, 4);
+
+            if (uiImButton(__("Save to File"))) {
+                item.saveBindings();
+            }
+
             foreach(i, ref TrackingBinding binding; item.bindings) {
                 if (!uiImHeader(binding.name.toStringz, true)) continue;
 
