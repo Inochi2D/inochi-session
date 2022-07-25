@@ -116,6 +116,7 @@ void insSceneAddPuppet(string path, Puppet puppet) {
 
 void insSceneInit() {
     insScene.space = insLoadVSpace();
+    trashcanTexture = new Texture(ShallowTexture(cast(ubyte[])import("tex/ui-delete.png")));
 }
 
 void insSceneCleanup() {
@@ -134,6 +135,16 @@ void insUpdateScene() {
 
     inBeginScene();
         
+        // Trashcan render variables
+        vec2 centerOffset = inCamera.getCenterOffset;
+        vec2 trashcanPos = vec2(
+            (inCamera.position.x-centerOffset.x)+TRASHCAN_DISPLACEMENT,
+            (inCamera.position.y+centerOffset.y)-(trashcanSize+TRASHCAN_DISPLACEMENT)
+        );
+        
+        // Draw trashcan
+        inDrawTextureAtRect(trashcanTexture, rect(trashcanPos.x, trashcanPos.y, trashcanSize, trashcanSize), rect(0, 0, 1, 1), trashcanVisibility);
+        
 
         // Update every scene item
         foreach(ref sceneItem; insScene.sceneItems) {
@@ -149,6 +160,8 @@ void insUpdateScene() {
             }
         }
     inEndScene();
+
+    trashcanVisibility = dampen(trashcanVisibility, isDragDown ? 0.85 : 0, deltaTime(), 1);
 }
 
 /**
@@ -166,6 +179,14 @@ private {
     bool hasDonePuppetSelect;
     vec2 targetPos = vec2(0);
     float targetScale = 0;
+
+    bool isDragDown = false;
+    Camera inCamera;
+
+    enum TRASHCAN_DISPLACEMENT = 16;
+    float trashcanVisibility = 0;
+    float trashcanSize = 128;
+    Texture trashcanTexture;
 }
 
 void insInteractWithScene() {
@@ -173,13 +194,13 @@ void insInteractWithScene() {
     inGetViewport(width, height);
 
     import std.stdio : writeln;
-    Camera camera = inGetCamera();
+    inCamera = inGetCamera();
     vec2 mousePos = inInputMousePosition();
     vec2 mouseOffset = vec2(width/2, height/2);
     mousePos = vec2(
         vec4(
-            (mousePos.x-mouseOffset.x+camera.position.x)/camera.scale.x,
-            (mousePos.y-mouseOffset.y+camera.position.y)/camera.scale.y,
+            (mousePos.x-mouseOffset.x+inCamera.position.x)/inCamera.scale.x,
+            (mousePos.y-mouseOffset.y+inCamera.position.y)/inCamera.scale.y,
             0, 
             1
         )
@@ -243,13 +264,28 @@ void insInteractWithScene() {
     if (inInputMouseDragging(MouseButton.Left) && hasDonePuppetSelect && draggingPuppet) {
         vec2 delta = inInputMouseDragDelta(MouseButton.Left);
         targetPos = vec2(
-            draggingPuppetStartPos.x+delta.x/camera.scale.x, 
-            draggingPuppetStartPos.y+delta.y/camera.scale.y, 
+            draggingPuppetStartPos.x+delta.x/inCamera.scale.x, 
+            draggingPuppetStartPos.y+delta.y/inCamera.scale.y, 
         );
     }
     
     // Apply Movement + Scaling
     if (draggingPuppet) {
+
+        // If the mouse was let go
+        if (isDragDown && !inInputMouseDown(MouseButton.Left)) {
+            mousePos = inInputMousePosition();
+            rect area = rect(TRASHCAN_DISPLACEMENT, height-(TRASHCAN_DISPLACEMENT+trashcanSize), trashcanSize, trashcanSize);
+            if (area.intersects(mousePos)) {
+                if (selectedPuppet >= 0 && selectedPuppet < insScene.sceneItems.length) {
+                    
+                    import std.algorithm.mutation : remove;
+                    insScene.sceneItems = insScene.sceneItems.remove(selectedPuppet);
+                }
+            }
+        }
+
+        isDragDown = inInputMouseDown(MouseButton.Left);
 
         import bindbc.imgui : igIsKeyDown, ImGuiKey;
         if (igIsKeyDown(ImGuiKey.LeftCtrl) || igIsKeyDown(ImGuiKey.RightCtrl)) {

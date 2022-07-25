@@ -30,10 +30,11 @@ void main(string[] args) {
     
     // Initialize UI
     inInitUI();
-    insSceneInit();
 
     // Open window and init Inochi2D
     auto window = new InochiSessionWindow(args[1..$]);
+    
+    insSceneInit();
     
     // Draw window
     while(window.isAlive) {
