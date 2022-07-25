@@ -268,36 +268,38 @@ public:
 
                 float src = 0;
 
-                switch(sourceType) {
+                if (insScene.space.currentZone) {
+                    switch(sourceType) {
 
-                    case SourceType.Blendshape:
-                        src = insScene.space.currentZone.getBlendshapeFor(sourceName);
-                        break;
+                        case SourceType.Blendshape:
+                            src = insScene.space.currentZone.getBlendshapeFor(sourceName);
+                            break;
 
-                    case SourceType.BonePosX:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).position.x;
-                        break;
+                        case SourceType.BonePosX:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).position.x;
+                            break;
 
-                    case SourceType.BonePosY:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).position.y;
-                        break;
+                        case SourceType.BonePosY:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).position.y;
+                            break;
 
-                    case SourceType.BonePosZ:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).position.z;
-                        break;
+                        case SourceType.BonePosZ:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).position.z;
+                            break;
 
-                    case SourceType.BoneRotRoll:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).rotation.roll.degrees;
-                        break;
+                        case SourceType.BoneRotRoll:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).rotation.roll.degrees;
+                            break;
 
-                    case SourceType.BoneRotPitch:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).rotation.pitch.degrees;
-                        break;
+                        case SourceType.BoneRotPitch:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).rotation.pitch.degrees;
+                            break;
 
-                    case SourceType.BoneRotYaw:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).rotation.yaw.degrees;
-                        break;
-                    default: assert(0);
+                        case SourceType.BoneRotYaw:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).rotation.yaw.degrees;
+                            break;
+                        default: assert(0);
+                    }
                 }
 
                 // Calculate the input ratio (within 0->1)

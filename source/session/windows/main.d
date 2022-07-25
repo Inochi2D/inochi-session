@@ -7,6 +7,7 @@
 module session.windows.main;
 import session.windows;
 import session.scene;
+import session.log;
 import inui;
 import inui.widgets;
 import inui.toolwindow;
@@ -71,6 +72,11 @@ protected:
                 uiImImage(logo.getTextureId(), vec2(avail.y*2, avail.y*2));
 
                 if (uiImBeginMenu(__("File"))) {
+
+                    if (uiImMenuItem(__("Exit"))) {
+                        this.close();
+                    }
+
                     uiImEndMenu();
                 }
 
@@ -93,6 +99,13 @@ protected:
                         inPushToolWindow(new SpaceEditor());
                     }
 
+                    uiImEndMenu();
+                }
+
+                if (uiImBeginMenu(__("Help"))) {
+                    if (uiImMenuItem(__("About"))) {
+                    }
+                    
                     uiImEndMenu();
                 }
 

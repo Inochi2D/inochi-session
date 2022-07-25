@@ -162,16 +162,19 @@ private:
                                 // TODO: Make all blendshapes in facetrack-d 0->1
                                 uiImRange(binding.inRange.x, binding.inRange.y, -1, 1);
                                 break;
+
                             case SourceType.BonePosX:
                             case SourceType.BonePosY:
                             case SourceType.BonePosZ:
                                 uiImRange(binding.inRange.x, binding.inRange.y, -float.max, float.max);
                                 break;
+
                             case SourceType.BoneRotPitch:
                             case SourceType.BoneRotRoll:
                             case SourceType.BoneRotYaw:
                                 uiImRange(binding.inRange.x, binding.inRange.y, -180, 180);
                                 break;
+                                
                             default: assert(0);
                         }
                     uiImUnindent();
