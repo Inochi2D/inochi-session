@@ -293,6 +293,21 @@ void insInteractWithScene() {
             draggingPuppetStartPos.x+delta.x/inCamera.scale.x, 
             draggingPuppetStartPos.y+delta.y/inCamera.scale.y, 
         );
+
+        float camPos2x = cameraCenter.x*2;
+        float camPos2y = cameraCenter.y*2;
+
+        // Clamp model to be within viewport
+        targetPos.x = clamp(
+            targetPos.x,
+            (inCamera.position.x-camPos2x)*inCamera.scale.x,
+            (inCamera.position.x+camPos2x)*inCamera.scale.x
+        );
+        targetPos.y = clamp(
+            targetPos.y,
+            (inCamera.position.y-camPos2y)*inCamera.scale.y,
+            (inCamera.position.y+camPos2y)*inCamera.scale.y
+        );
     }
     
     // Apply Movement + Scaling
