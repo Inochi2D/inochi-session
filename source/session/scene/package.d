@@ -134,20 +134,39 @@ void insUpdateScene() {
     insScene.space.update();
 
     inBeginScene();
-        
+
         // Trashcan render variables
+        float trashcanScale = 1f;
+        float sizeOffset = 0f;
         vec2 centerOffset = inCamera.getCenterOffset;
         vec2 trashcanPos = vec2(
             (inCamera.position.x-centerOffset.x)+TRASHCAN_DISPLACEMENT,
             (inCamera.position.y+centerOffset.y)-(trashcanSize+TRASHCAN_DISPLACEMENT)
         );
-        
+
+        if (isMouseOverDelete) {
+            float scalePercent = (sin(currentTime()*2)+1)/2;
+            trashcanScale += 0.15*scalePercent;
+            sizeOffset = ((trashcanSize*trashcanScale)-trashcanSize)/2;
+        }
+
         // Draw trashcan
-        inDrawTextureAtRect(trashcanTexture, rect(trashcanPos.x, trashcanPos.y, trashcanSize, trashcanSize), rect(0, 0, 1, 1), trashcanVisibility);
+        inDrawTextureAtRect(
+            trashcanTexture, 
+            rect(
+                trashcanPos.x-sizeOffset, 
+                trashcanPos.y-sizeOffset, 
+                trashcanSize*trashcanScale, 
+                trashcanSize*trashcanScale
+            ), 
+            rect(0, 0, 1, 1), 
+            trashcanVisibility
+        );
         
 
         // Update every scene item
         foreach(ref sceneItem; insScene.sceneItems) {
+            
             foreach(ref binding; sceneItem.bindings) {
                 binding.update();
             }
@@ -187,16 +206,23 @@ private {
     float trashcanVisibility = 0;
     float trashcanSize = 128;
     Texture trashcanTexture;
+    rect deleteArea;
+    bool isMouseOverDelete;
 }
 
 void insInteractWithScene() {
     int width, height;
     inGetViewport(width, height);
+    
+    float trashcanHalfSize = trashcanSize/2;
+    deleteArea = rect(0, height-(TRASHCAN_DISPLACEMENT+trashcanHalfSize), trashcanHalfSize+TRASHCAN_DISPLACEMENT, trashcanHalfSize+TRASHCAN_DISPLACEMENT);
+    isMouseOverDelete = deleteArea.intersects(inInputMousePosition());
 
     import std.stdio : writeln;
     inCamera = inGetCamera();
     vec2 mousePos = inInputMousePosition();
     vec2 mouseOffset = vec2(width/2, height/2);
+    vec2 cameraCenter = inCamera.getCenterOffset();
     mousePos = vec2(
         vec4(
             (mousePos.x-mouseOffset.x+inCamera.position.x)/inCamera.scale.x,
@@ -254,7 +280,7 @@ void insInteractWithScene() {
         import bindbc.imgui : igSetMouseCursor, ImGuiMouseCursor;
         igSetMouseCursor(ImGuiMouseCursor.Hand);
         targetScale = clamp(
-            draggingPuppet.root.localTransform.scale.x+(inInputMouseScrollDelta()), 
+            targetScale+(inInputMouseScrollDelta()*0.5), 
             0.25,
             1000
         );
@@ -271,16 +297,18 @@ void insInteractWithScene() {
     
     // Apply Movement + Scaling
     if (draggingPuppet) {
+        if (isMouseOverDelete) {
 
-        // If the mouse was let go
-        if (isDragDown && !inInputMouseDown(MouseButton.Left)) {
-            mousePos = inInputMousePosition();
-            rect area = rect(TRASHCAN_DISPLACEMENT, height-(TRASHCAN_DISPLACEMENT+trashcanSize), trashcanSize, trashcanSize);
-            if (area.intersects(mousePos)) {
+            // If the mouse was let go
+            if (isDragDown && !inInputMouseDown(MouseButton.Left)) {
                 if (selectedPuppet >= 0 && selectedPuppet < insScene.sceneItems.length) {
                     
                     import std.algorithm.mutation : remove;
                     insScene.sceneItems = insScene.sceneItems.remove(selectedPuppet);
+                    draggingPuppet = null;
+                    selectedPuppet = -1;
+                    isDragDown = false;
+                    return;
                 }
             }
         }
@@ -290,23 +318,46 @@ void insInteractWithScene() {
         import bindbc.imgui : igIsKeyDown, ImGuiKey;
         if (igIsKeyDown(ImGuiKey.LeftCtrl) || igIsKeyDown(ImGuiKey.RightCtrl)) {
             targetScale = clamp(
-                draggingPuppet.root.localTransform.scale.x+(inInputMouseScrollDelta()), 
+                targetScale+(inInputMouseScrollDelta()*0.5), 
                 0.25,
                 1000
             );
         }
+        
 
-        draggingPuppet.root.localTransform.translation = dampen(
-            draggingPuppet.root.localTransform.translation,
-            vec3(targetPos, 0),
-            inGetDeltaTime()
-        );
+        if (isDragDown && isMouseOverDelete) {
+            
 
-        // Dampen & clamp scaling
-        draggingPuppet.root.localTransform.scale = dampen(
-            draggingPuppet.root.localTransform.scale,
-            vec2(targetScale),
-            inGetDeltaTime()
-        );
+            draggingPuppet.root.localTransform.translation = dampen(
+                draggingPuppet.root.localTransform.translation,
+                vec3(
+                    (inCamera.position.x+(-cameraCenter.x)+128), 
+                    (inCamera.position.y+(cameraCenter.y)-128), 
+                    0
+                ),
+                inGetDeltaTime()
+            );
+
+            // Dampen & clamp scaling
+            draggingPuppet.root.localTransform.scale = dampen(
+                draggingPuppet.root.localTransform.scale,
+                vec2(0.025),
+                inGetDeltaTime()
+            );
+        } else {
+
+            draggingPuppet.root.localTransform.translation = dampen(
+                draggingPuppet.root.localTransform.translation,
+                vec3(targetPos, 0),
+                inGetDeltaTime()
+            );
+
+            // Dampen & clamp scaling
+            draggingPuppet.root.localTransform.scale = dampen(
+                draggingPuppet.root.localTransform.scale,
+                vec2(targetScale),
+                inGetDeltaTime()
+            );
+        }
     }
 }

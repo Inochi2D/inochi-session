@@ -102,6 +102,12 @@ protected:
                     uiImEndMenu();
                 }
 
+                if (uiImBeginMenu(__("Plugins"))) {
+
+                    uiImEndMenu();
+                }
+
+
                 if (uiImBeginMenu(__("Help"))) {
                     if (uiImMenuItem(__("About"))) {
                     }
