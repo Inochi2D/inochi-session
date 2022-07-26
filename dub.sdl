@@ -76,8 +76,8 @@ configuration "win32-full" {
 
 	targetType "executable"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="window-dmd"
-	sourceFiles "res\\inochi-creator.res"
-	preBuildCommands "rc.exe /v res\\inochi-creator.rc"
+	sourceFiles "res\\inochi-session.res"
+	preBuildCommands "rc.exe /v res\\inochi-session.rc"
 	versions "InBranding"
 }
 
