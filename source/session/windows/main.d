@@ -8,6 +8,7 @@ module session.windows.main;
 import session.windows;
 import session.scene;
 import session.log;
+import session.framesend;
 import inui;
 import inui.widgets;
 import inui.toolwindow;
@@ -50,8 +51,8 @@ private:
 protected:
     override
     void onEarlyUpdate() {
-
         insUpdateScene();
+        insSendFrame();
         inDrawScene(vec4(0, 0, width, height));
     }
 
@@ -168,5 +169,6 @@ public:
         inGetCamera().scale = vec2(0.5);
 
         logo = new Texture(ShallowTexture(cast(ubyte[])import("tex/logo.png")));
+
     }
 }

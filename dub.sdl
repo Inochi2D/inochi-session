@@ -37,6 +37,8 @@ configuration "barebones" {
 
 configuration "win32-barebones" {
 	platforms "windows"
+	
+	dependency "bindbc-spout2" version="~>1.0.0"
 
 	targetType "executable"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup"
@@ -70,6 +72,8 @@ configuration "osx-full" {
 configuration "win32-full" {
 	platforms "windows"
 
+	dependency "bindbc-spout2" version="~>1.0.0"
+
 	targetType "executable"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="window-dmd"
 	sourceFiles "res\\inochi-creator.res"
@@ -80,6 +84,8 @@ configuration "win32-full" {
 configuration "win32-lite" {
 	platforms "windows"
 
+	dependency "bindbc-spout2" version="~>1.0.0"
+	
 	targetType "executable"
 	versions "InBranding" "InLite"
 }

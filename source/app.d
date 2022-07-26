@@ -15,6 +15,8 @@ import session.plugins;
 import session.log;
 import session.ver;
 import session.scene;
+import session.framesend;
+
 
 void main(string[] args) {
     insLogInfo("Inochi Session %s, args=%s", INS_VERSION, args[1..$]);
@@ -35,12 +37,14 @@ void main(string[] args) {
     auto window = new InochiSessionWindow(args[1..$]);
     
     insSceneInit();
+    insInitFrameSending();
     
     // Draw window
     while(window.isAlive) {
         window.update();
     }
     
+    insCleanupFrameSending();
     insSceneCleanup();
     inSettingsSave();
 }
