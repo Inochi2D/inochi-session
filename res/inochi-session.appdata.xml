@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>inochi-session</id>
+  <launchable type="desktop-id">inochi-session.desktop</launchable>
+  <name>Inochi Session</name>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>BSD-2-Clause</project_license>
+  <summary>Tool for using Inochi2D puppets for streaming.</summary>
+  <description>
+    <p>
+      Inochi2D is a framework for realtime 2D puppet animation which can be used for VTubing, 
+      game development and digital animation. 
+    </p>
+    <p>
+      Inochi Session is a tool that lets you use your Inochi2D models for live streaming.
+    </p>
+  </description>
+  <url type="homepage">https://inochi2d.com</url>
+  <url type="help">https://github.com/Inochi2D/inochi-session</url>
+  <url type="bugtracker">https://github.com/Inochi2D/inochi-session/issues</url>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Title screen</caption>
+      <image>https://user-images.githubusercontent.com/7032834/181119161-f83e8e57-2f9e-409f-90bd-1b1b9c047bcc.png</image>
+    </screenshot>
+  </screenshots>
+  <categories>
+    <category>Graphics</category>
+  </categories>
+</component>

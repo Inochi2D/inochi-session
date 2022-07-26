@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=inochi-session
+Exec=inochi-session
+Icon=icon_x256
+Type=Application
+Categories=Utility

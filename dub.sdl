@@ -9,7 +9,7 @@ dependency "bindbc-imgui" version="~>0.7.0"
 dependency "inui" version="~>1.0.0"
 dependency "lumars" version="~>1.3.0"
 dependency "bindbc-sdl" version="~>1.1.2"
-dependency "i18n-d" version="~>1.0.0"
+dependency "i18n-d" version="~>1.0.1"
 dependency "inochi2d" version="~>0.7.2"
 targetPath "out/"
 workingDirectory "out/"
@@ -38,7 +38,7 @@ configuration "barebones" {
 configuration "win32-barebones" {
 	platforms "windows"
 	
-	dependency "bindbc-spout2" version="~>1.0.0"
+	dependency "bindbc-spout2" version="~>0.1.0"
 
 	targetType "executable"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup"
@@ -72,7 +72,7 @@ configuration "osx-full" {
 configuration "win32-full" {
 	platforms "windows"
 
-	dependency "bindbc-spout2" version="~>1.0.0"
+	dependency "bindbc-spout2" version="~>0.1.0"
 
 	targetType "executable"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="window-dmd"
@@ -84,8 +84,8 @@ configuration "win32-full" {
 configuration "win32-lite" {
 	platforms "windows"
 
-	dependency "bindbc-spout2" version="~>1.0.0"
-	
+	dependency "bindbc-spout2" version="~>0.1.0"
+
 	targetType "executable"
 	versions "InBranding" "InLite"
 }
