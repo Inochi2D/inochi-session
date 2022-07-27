@@ -14,9 +14,11 @@ private {
 }
 
 void insInitExpressions() {
-    state = new LuaState(luaL_newstate());
-    luaopen_math(state.handle);
 
+    // The expression system is COMPLETELY sandboxed
+    // Having no access to any lua standard library features
+    // We're basically registering all the functions here.
+    state = new LuaState(luaL_newstate());
     state.register!((string name) {
         if (!insScene.space.currentZone) return 0f;
         return insScene.space.currentZone.getBlendshapeFor(name);
@@ -102,19 +104,6 @@ private:
     }
 
 public:
-
-    /**
-        Cleanup expression by setting the func to nil
-    */
-    ~this() {
-        // if (state) {
-        //     try {
-        //         state.doString("%s = nil".format(exprName_));
-        //     } catch(Exception ex) {
-        //         insLogErr("%s: %s", exprName_, ex.msg);
-        //     }
-        // }
-    }
 
     /**
         Constructs an expression
