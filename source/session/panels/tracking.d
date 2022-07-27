@@ -90,10 +90,8 @@ private:
             if (uiImBeginMenu(__("Type"))) {
 
                 if (uiImMenuItem(__("Ratio Binding"))) {
+                    binding.expr = null;
                     binding.type = BindingType.RatioBinding;
-                    if (binding.expr) {
-                        destroy!false(binding.expr);
-                    }
                 }
 
                 if (uiImMenuItem(__("Expression Binding"))) {
@@ -110,15 +108,26 @@ private:
     void exprBinding(size_t i, ref TrackingBinding binding) {
         if (binding.expr) {
             string buf = binding.expr.expression;
-            if (uiImInputText(__("###EXPRESSION"), buf)) {
+            if (uiImInputText("###EXPRESSION", buf)) {
                 binding.expr.expression = buf;
             }
 
-            if (binding.expr.lastError.length > 0) {
-                uiImLabelColored(binding.expr.lastError, vec4(1, 0, 0, 1));
-            }
+            uiImPushTextWrapPos();
+                if (binding.expr.lastError.length > 0) {
+                    uiImLabelColored(binding.expr.lastError, vec4(1, 0, 0, 1));
+                }
+            uiImPopTextWrapPos();
 
-            uiImLabel("Output: %s".format(binding.outVal));
+            uiImLabel(_("Output (%s)").format(binding.outVal));
+            uiImIndent();
+                uiImProgress(binding.outVal);
+            uiImUnindent();
+            
+            uiImPushTextWrapPos();
+                if (binding.outVal < 0 || binding.outVal > 1) {
+                    uiImLabelColored(_("Value out of range, clamped to 0..1 range."), vec4(0.95, 0.88, 0.62, 1));
+                }
+            uiImPopTextWrapPos();
         }
     }
 

@@ -146,10 +146,10 @@ public:
     Expression* expr;
 
     /// Ratio for input
-    vec2 inRange;
+    vec2 inRange = vec2(0, 1);
 
     /// Ratio for output
-    vec2 outRange;
+    vec2 outRange = vec2(0, 1);
 
     /// Last input value
     float inVal = 0;
@@ -165,12 +165,12 @@ public:
     /**
         The axis to apply the binding to
     */
-    int axis;
+    int axis = 0;
 
     /**
         Dampening level
     */
-    int dampenLevel;
+    int dampenLevel = 0;
 
     /**
         Whether to inverse the binding
@@ -191,11 +191,11 @@ public:
             serializer.serializeValue(type);
             serializer.putKey("param");
             serializer.serializeValue(param.uuid);
+            serializer.putKey("axis");
+            serializer.putValue(axis);
 
             switch(type) {
                 case BindingType.RatioBinding:
-                    serializer.putKey("axis");
-                    serializer.putValue(axis);
                     serializer.putKey("dampenLevel");
                     serializer.putValue(dampenLevel);
                     serializer.putKey("inverse");

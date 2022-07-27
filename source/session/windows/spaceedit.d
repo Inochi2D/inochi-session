@@ -138,7 +138,7 @@ public:
                 uiImLabel(_("No zone selected for editing..."));
             } else {
                 uiImPush(cast(int)editingZone.hashOf());
-                    uiImInputText(__("Zone Name"), avail.x/2, editingZone.name);
+                    uiImInputText("###ZoneName", avail.x/2, editingZone.name);
 
                     uiImSeperator();
                     uiImNewLine();
@@ -169,7 +169,7 @@ public:
                                             foreach(option; source.getOptionNames()) {
                                                 if (option == "appName") continue;
                                                 if (option !in options[source]) options[source][option] = "";
-                                                uiImInputText(option.toStringz, avail.x/2, options[source][option]);
+                                                uiImInputText(option, avail.x/2, options[source][option]);
                                             }
 
                                             if (uiImButton(__("Save Changes"))) {

@@ -7,6 +7,7 @@ import inochi2d;
 import lumars;
 import bindbc.lua : luaL_newstate, luaopen_math;
 import std.format;
+import i18n;
 
 private {
     LuaState* state;
@@ -106,7 +107,13 @@ public:
         Cleanup expression by setting the func to nil
     */
     ~this() {
-        if (state) state.doString("%s = nil".format(exprName_));
+        // if (state) {
+        //     try {
+        //         state.doString("%s = nil".format(exprName_));
+        //     } catch(Exception ex) {
+        //         insLogErr("%s: %s", exprName_, ex.msg);
+        //     }
+        // }
     }
 
     /**
@@ -152,13 +159,29 @@ public:
         if (lastError_.length > 0) return 0f;
 
         try {
+
+            // Attempt call
             state.getGlobal(exprName_);
             if (state.pcall(0, 1, 0) != LuaStatus.ok) {
                 lastError_ = state.get!string(-1);
                 return 0f;
             }
+
+            // Type checking
+            auto type = state.type(-1);
+            if (type != LuaValue.Kind.number) {
+                import std.conv : text;
+                lastError_ = _("Expected number, got %s").format(type.text);
+                return 0;
+            }
+
+            // Value return
             return state.get!float(-1);
+        
         } catch (Exception ex) {
+            
+            // Other error occured.
+            lastError_ = ex.msg;
             return 0;
         }
     }
