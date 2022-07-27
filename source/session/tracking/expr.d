@@ -171,7 +171,7 @@ public:
             auto type = state.type(-1);
             if (type != LuaValue.Kind.number) {
                 import std.conv : text;
-                lastError_ = _("Expected number, got %s").format(type.text);
+                lastError_ = _("Expected %s, got %s").format(LuaValue.Kind.number.stringof, type.text);
                 return 0;
             }
 

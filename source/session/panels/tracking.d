@@ -112,22 +112,23 @@ private:
                 binding.expr.expression = buf;
             }
 
-            uiImPushTextWrapPos();
-                if (binding.expr.lastError.length > 0) {
-                    uiImLabelColored(binding.expr.lastError, vec4(1, 0, 0, 1));
-                }
-            uiImPopTextWrapPos();
-
             uiImLabel(_("Output (%s)").format(binding.outVal));
             uiImIndent();
                 uiImProgress(binding.outVal);
-            uiImUnindent();
             
-            uiImPushTextWrapPos();
-                if (binding.outVal < 0 || binding.outVal > 1) {
-                    uiImLabelColored(_("Value out of range, clamped to 0..1 range."), vec4(0.95, 0.88, 0.62, 1));
-                }
-            uiImPopTextWrapPos();
+
+                uiImPushTextWrapPos();
+                    if (binding.expr.lastError.length > 0) {
+                        uiImLabelColored(binding.expr.lastError, vec4(1, 0, 0, 1));
+                        uiImNewLine();
+                    }
+
+                    if (binding.outVal < 0 || binding.outVal > 1) {
+                        uiImLabelColored(_("Value out of range, clamped to 0..1 range."), vec4(0.95, 0.88, 0.62, 1));
+                        uiImNewLine();
+                    }
+                uiImPopTextWrapPos();
+            uiImUnindent();
         }
     }
 
