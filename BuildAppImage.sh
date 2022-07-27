@@ -4,7 +4,9 @@ cd build
 mkdir inochi-session.AppDir
 cd inochi-session.AppDir
 mkdir -p usr/bin
+mkdir -p usr/lib
 mkdir -p usr/share/metainfo
+cp ../../out/*.so usr/lib/
 cp ../../out/inochi-session usr/bin/inochi-session
 cp ../../out/*.mo ./
 cp ../../res/icon_x256.png icon_x256.png
