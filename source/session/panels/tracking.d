@@ -66,6 +66,10 @@ private:
 
         // Add any bindings unnacounted for which are stored in the model.
         trkMain: foreach(bind; trackingBindings) {
+            
+            // Skip non-existent sources
+            if (bind.sourceName.length == 0) continue;
+            
             TrackingSource src = TrackingSource(
                 bind.sourceType != SourceType.Blendshape,
                 bind.sourceName,
