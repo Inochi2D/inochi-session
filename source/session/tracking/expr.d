@@ -1,5 +1,7 @@
 module session.tracking.expr;
 import session.tracking;
+import session.scene;
+import session.log;
 import ft;
 import inochi2d;
 import lumars;
@@ -8,11 +10,66 @@ import std.format;
 
 private {
     LuaState* state;
+}
 
-    void initState() {
-        state = new LuaState(luaL_newstate());
-        luaopen_math(state.handle);
-    }
+void insInitExpressions() {
+    state = new LuaState(luaL_newstate());
+    luaopen_math(state.handle);
+
+    state.register!((string name) {
+        if (!insScene.space.currentZone) return 0f;
+        return insScene.space.currentZone.getBlendshapeFor(name);
+    })("BLEND");
+    
+    state.register!((string name) {
+        if (!insScene.space.currentZone) return 0f;
+        return insScene.space.currentZone.getBoneFor(name).position.x;
+    })("BONE_X");
+    
+    state.register!((string name) {
+        if (!insScene.space.currentZone) return 0f;
+        return insScene.space.currentZone.getBoneFor(name).position.y;
+    })("BONE_Y");
+    
+    state.register!((string name) {
+        if (!insScene.space.currentZone) return 0f;
+        return insScene.space.currentZone.getBoneFor(name).position.z;
+    })("BONE_Z");
+    
+    state.register!((string name) {
+        if (!insScene.space.currentZone) return 0f;
+        return insScene.space.currentZone.getBoneFor(name).rotation.roll.degrees;
+    })("ROLL");
+    
+    state.register!((string name) {
+        if (!insScene.space.currentZone) return 0f;
+        return insScene.space.currentZone.getBoneFor(name).rotation.pitch.degrees;
+    })("PITCH");
+    
+    state.register!((string name) {
+        if (!insScene.space.currentZone) return 0f;
+        return insScene.space.currentZone.getBoneFor(name).rotation.yaw.degrees;
+    })("YAW");
+    
+    state.register!(() {
+        return currentTime();
+    })("time");
+    
+    state.register!((float val) {
+        return sin(val);
+    })("sin");
+    
+    state.register!((float val) {
+        return cos(val);
+    })("cos");
+
+    state.register!((float val) {
+        return tan(val);
+    })("tan");
+}
+
+void insCleanupExpressions() {
+    destroy(state);
 }
 
 
@@ -24,10 +81,42 @@ private:
     // source
     string expressionSource_;
 
+    // last error
+    string lastError_;
+
+    bool updateState() {
+        if (expressionSource_.length == 0) {
+            lastError_ = "Expression is empty";
+            return false;
+        }
+
+        try {
+            state.doString("function %s() return (%s) end".format(exprName_, expressionSource_));
+            lastError_ = null;
+            return true;
+        } catch(Exception ex) {
+            lastError_ = ex.msg;
+            return false;
+        }
+    }
+
 public:
+
+    /**
+        Cleanup expression by setting the func to nil
+    */
+    ~this() {
+        state.doString("%s = nil".format(exprName_));
+    }
+
+    /**
+        Constructs an expression
+    */
     this(string signature, string source) {
+        insLogInfo("Created expression %s...", signature);
         this.exprName_ = signature;
         this.expressionSource_ = source;
+        updateState();
     }
 
     /**
@@ -47,14 +136,34 @@ public:
     /**
         Sets the expression to evaluate
     */
-    void expression(string value) {
+    bool expression(string value) {
         expressionSource_ = value;
-        state.doString("function %s() return (%s) end".format(exprName_, expressionSource_));
+        return updateState();
+    }
+
+    /**
+        Gets the last error encounted for the expression
+    */
+    string lastError() {
+        return lastError_;
     }
 
     float call() {
-        state.push(exprName_);
-        state.call(0, 1);
-        return state.get!float(-1);
+        if (lastError_.length > 0) return 0f;
+
+        try {
+            state.getGlobal(exprName_);
+            if (state.pcall(0, 1, 0) != LuaStatus.ok) {
+                lastError_ = state.get!string(-1);
+                return 0f;
+            }
+            return state.get!float(-1);
+        } catch (Exception ex) {
+            return 0;
+        }
     }
+}
+
+string insExpressionGenerateSignature(Parameter param, int axis) {
+    return "p%s_%s".format(param.uuid, axis);
 }

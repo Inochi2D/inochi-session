@@ -16,6 +16,7 @@ import session.log;
 import session.ver;
 import session.scene;
 import session.framesend;
+import session.tracking.expr;
 
 
 void main(string[] args) {
@@ -33,17 +34,21 @@ void main(string[] args) {
     // Initialize UI
     inInitUI();
 
+    // Initialize expressions before models are loaded.
+    insInitExpressions();
+
     // Open window and init Inochi2D
     auto window = new InochiSessionWindow(args[1..$]);
     
     insSceneInit();
     insInitFrameSending();
-    
+
     // Draw window
     while(window.isAlive) {
         window.update();
     }
     
+    insCleanupExpressions();
     insCleanupFrameSending();
     insSceneCleanup();
     inSettingsSave();

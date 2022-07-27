@@ -143,7 +143,7 @@ public:
     /**
         Expression (if in ExpressionBinding mode)
     */
-    Expression expr;
+    Expression* expr;
 
     /// Ratio for input
     vec2 inRange;
@@ -238,7 +238,7 @@ public:
                 string exprStr;
                 data["signature"].deserializeValue(exprSig);
                 data["expression"].deserializeValue(exprStr);
-                expr = Expression(exprSig, exprStr);
+                expr = new Expression(exprSig, exprStr);
                 break;
             default: break;
         }
@@ -317,7 +317,10 @@ public:
                 break;
 
             case BindingType.ExpressionBinding:
-                param.value.vector[axis] += expr.call();
+                if (expr) {
+                    outVal = expr.call();
+                    param.value.vector[axis] += param.unmapAxis(axis, outVal);
+                }
                 break; 
 
             // External bindings
