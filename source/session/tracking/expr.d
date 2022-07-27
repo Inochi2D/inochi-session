@@ -106,7 +106,7 @@ public:
         Cleanup expression by setting the func to nil
     */
     ~this() {
-        state.doString("%s = nil".format(exprName_));
+        if (state) state.doString("%s = nil".format(exprName_));
     }
 
     /**
