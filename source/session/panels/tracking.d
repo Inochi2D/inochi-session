@@ -152,6 +152,7 @@ private:
                 if (trackingFilter.length > 0 && !indexableSourceNames[ix].canFind(trackingFilter)) continue;
 
                 bool selected = binding.sourceName == source.name;
+                bool nameValid = source.name.length > 0;
                 if (source.isBone) {
                     if (uiImBeginMenu(source.cName)) {
                         if (uiImMenuItem(__("X"))) {
@@ -187,7 +188,7 @@ private:
                         uiImEndMenu();
                     }
                 } else {
-                    if (uiImSelectable(source.cName, selected)) {
+                    if (uiImSelectable(nameValid ? source.cName : "###NoName", selected)) {
                         binding.sourceType = SourceType.Blendshape;
                         binding.sourceName = source.name;
                         binding.createSourceDisplayName();
