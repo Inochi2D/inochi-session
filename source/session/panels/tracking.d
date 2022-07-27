@@ -119,7 +119,7 @@ private:
 
                 uiImPushTextWrapPos();
                     if (binding.expr.lastError.length > 0) {
-                        uiImLabelColored(binding.expr.lastError, vec4(1, 0, 0, 1));
+                        uiImLabelColored(binding.expr.lastError, vec4(1, 0.4, 0.4, 1));
                         uiImNewLine();
                     }
 
