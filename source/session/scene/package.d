@@ -198,6 +198,7 @@ private {
     bool hasDonePuppetSelect;
     vec2 targetPos = vec2(0);
     float targetScale = 0;
+    vec2 targetSize = vec2(0);
 
     bool isDragDown = false;
     Camera inCamera;
@@ -257,6 +258,7 @@ void insInteractWithScene() {
                         draggingPuppetStartPos = puppet.root.localTransform.translation.xy;
                         targetScale = puppet.root.localTransform.scale.x;
                         targetPos = draggingPuppetStartPos;
+                        targetSize = size;
                         draggingPuppet = puppet;
                         selectedPuppet = i;
                         selectedAny = true;
@@ -279,11 +281,38 @@ void insInteractWithScene() {
     if (hasDonePuppetSelect && draggingPuppet) {
         import bindbc.imgui : igSetMouseCursor, ImGuiMouseCursor;
         igSetMouseCursor(ImGuiMouseCursor.Hand);
+        float prevScale = targetScale;
+
+        float targetDelta = (inInputMouseScrollDelta()*0.05)*(1-targetScale);
         targetScale = clamp(
-            targetScale+(inInputMouseScrollDelta()*0.5), 
+            targetScale+targetDelta, 
             0.25,
             1000
         );
+        
+        if (targetScale != prevScale) {
+            inSetUpdateBounds(true);
+                vec4 lbounds = draggingPuppet.root.getCombinedBounds!true();
+                vec2 tl = vec4(lbounds.xy, 0, 1);
+                vec2 br = vec4(lbounds.zw, 0, 1);
+                targetSize = abs(br-tl);
+            inSetUpdateBounds(false);
+            
+            float camPosClampX = (cameraCenter.x*2)+(targetSize.x/3);
+            float camPosClampY = (cameraCenter.y*2)+(targetSize.y/2);
+
+            // Clamp model to be within viewport
+            targetPos.x = clamp(
+                targetPos.x,
+                (inCamera.position.x-camPosClampX)*inCamera.scale.x,
+                (inCamera.position.x+camPosClampX)*inCamera.scale.x
+            );
+            targetPos.y = clamp(
+                targetPos.y,
+                (inCamera.position.y-camPosClampY)*inCamera.scale.y,
+                (inCamera.position.y+camPosClampY)*inCamera.scale.y
+            );
+        }
     }
 
     // Model Movement
@@ -294,19 +323,19 @@ void insInteractWithScene() {
             draggingPuppetStartPos.y+delta.y/inCamera.scale.y, 
         );
 
-        float camPos2x = cameraCenter.x*2;
-        float camPos2y = cameraCenter.y*2;
+        float camPosClampX = (cameraCenter.x*2)+(targetSize.x/3);
+        float camPosClampY = (cameraCenter.y*2)+(targetSize.y/2);
 
         // Clamp model to be within viewport
         targetPos.x = clamp(
             targetPos.x,
-            (inCamera.position.x-camPos2x)*inCamera.scale.x,
-            (inCamera.position.x+camPos2x)*inCamera.scale.x
+            (inCamera.position.x-camPosClampX)*inCamera.scale.x,
+            (inCamera.position.x+camPosClampX)*inCamera.scale.x
         );
         targetPos.y = clamp(
             targetPos.y,
-            (inCamera.position.y-camPos2y)*inCamera.scale.y,
-            (inCamera.position.y+camPos2y)*inCamera.scale.y
+            (inCamera.position.y-camPosClampY)*inCamera.scale.y,
+            (inCamera.position.y+camPosClampY)*inCamera.scale.y
         );
     }
     
