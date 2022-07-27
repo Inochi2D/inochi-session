@@ -283,11 +283,11 @@ void insInteractWithScene() {
         igSetMouseCursor(ImGuiMouseCursor.Hand);
         float prevScale = targetScale;
 
-        float targetDelta = (inInputMouseScrollDelta()*0.05)*(1-targetScale);
+        float targetDelta = (inInputMouseScrollDelta()*0.05)*(1-clamp(targetScale, 0, 0.45));
         targetScale = clamp(
             targetScale+targetDelta, 
             0.25,
-            1000
+            5
         );
         
         if (targetScale != prevScale) {
@@ -361,10 +361,11 @@ void insInteractWithScene() {
 
         import bindbc.imgui : igIsKeyDown, ImGuiKey;
         if (igIsKeyDown(ImGuiKey.LeftCtrl) || igIsKeyDown(ImGuiKey.RightCtrl)) {
+            float targetDelta = (inInputMouseScrollDelta()*0.05)*(1-clamp(targetScale, 0, 0.45));
             targetScale = clamp(
-                targetScale+(inInputMouseScrollDelta()*0.5), 
+                targetScale+targetDelta, 
                 0.25,
-                1000
+                5
             );
         }
         
