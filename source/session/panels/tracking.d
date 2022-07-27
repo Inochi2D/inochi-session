@@ -69,7 +69,7 @@ private:
             
             // Skip non-existent sources
             if (bind.sourceName.length == 0) continue;
-            
+
             TrackingSource src = TrackingSource(
                 bind.sourceType != SourceType.Blendshape,
                 bind.sourceName,
@@ -163,36 +163,43 @@ private:
                             binding.sourceName = source.name;
                             binding.sourceType = SourceType.BonePosX;
                             binding.createSourceDisplayName();
+                            trackingFilter = null;
                         }
                         if (uiImMenuItem(__("Y"))) {
                             binding.sourceName = source.name;
                             binding.sourceType = SourceType.BonePosY;
                             binding.createSourceDisplayName();
+                            trackingFilter = null;
                         }
                         if (uiImMenuItem(__("Z"))) {
                             binding.sourceName = source.name;
                             binding.sourceType = SourceType.BonePosZ;
                             binding.createSourceDisplayName();
+                            trackingFilter = null;
                         }
                         if (uiImMenuItem(__("Roll"))) {
                             binding.sourceName = source.name;
                             binding.sourceType = SourceType.BoneRotRoll;
                             binding.createSourceDisplayName();
+                            trackingFilter = null;
                         }
                         if (uiImMenuItem(__("Pitch"))) {
                             binding.sourceName = source.name;
                             binding.sourceType = SourceType.BoneRotPitch;
                             binding.createSourceDisplayName();
+                            trackingFilter = null;
                         }
                         if (uiImMenuItem(__("Yaw"))) {
                             binding.sourceName = source.name;
                             binding.sourceType = SourceType.BoneRotYaw;
                             binding.createSourceDisplayName();
+                            trackingFilter = null;
                         }
                         uiImEndMenu();
                     }
                 } else {
                     if (uiImSelectable(nameValid ? source.cName : "###NoName", selected)) {
+                        trackingFilter = null;
                         binding.sourceType = SourceType.Blendshape;
                         binding.sourceName = source.name;
                         binding.createSourceDisplayName();
