@@ -21,7 +21,6 @@ import session.tracking.expr;
 
 void main(string[] args) {
     insLogInfo("Inochi Session %s, args=%s", INS_VERSION, args[1..$]);
-    insLuaInit();
     
     // Set the application info
     InApplication appInfo = InApplication(
@@ -30,6 +29,9 @@ void main(string[] args) {
         "Inochi Session"                // Human-readable name
     );
     inSetApplication(appInfo);
+
+    // Initialize Lua
+    insLuaInit();
     
     // Initialize UI
     inInitUI();

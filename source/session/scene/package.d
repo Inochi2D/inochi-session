@@ -297,21 +297,6 @@ void insInteractWithScene() {
                 vec2 br = vec4(lbounds.zw, 0, 1);
                 targetSize = abs(br-tl);
             inSetUpdateBounds(false);
-            
-            float camPosClampX = (cameraCenter.x*2)+(targetSize.x/3);
-            float camPosClampY = (cameraCenter.y*2)+(targetSize.y/2);
-
-            // Clamp model to be within viewport
-            targetPos.x = clamp(
-                targetPos.x,
-                (inCamera.position.x-camPosClampX)*inCamera.scale.x,
-                (inCamera.position.x+camPosClampX)*inCamera.scale.x
-            );
-            targetPos.y = clamp(
-                targetPos.y,
-                (inCamera.position.y-camPosClampY)*inCamera.scale.y,
-                (inCamera.position.y+camPosClampY)*inCamera.scale.y
-            );
         }
     }
 
@@ -322,9 +307,12 @@ void insInteractWithScene() {
             draggingPuppetStartPos.x+delta.x/inCamera.scale.x, 
             draggingPuppetStartPos.y+delta.y/inCamera.scale.y, 
         );
-
+    }
+    
+    // Model clamping
+    {
         float camPosClampX = (cameraCenter.x*2)+(targetSize.x/3);
-        float camPosClampY = (cameraCenter.y*2)+(targetSize.y/2);
+        float camPosClampY = (cameraCenter.y*2)+(targetSize.y/1.5);
 
         // Clamp model to be within viewport
         targetPos.x = clamp(
@@ -338,7 +326,7 @@ void insInteractWithScene() {
             (inCamera.position.y+camPosClampY)*inCamera.scale.y
         );
     }
-    
+
     // Apply Movement + Scaling
     if (draggingPuppet) {
         if (isMouseOverDelete) {
