@@ -1,0 +1,214 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-27 00:24+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: source/session/framesend.d:31
+msgid ""
+"Could not start texture sharing, it will be disabled. Is the library missing?"
+msgstr ""
+
+#: source/session/framesend.d:32
+msgid "Frame-sending started successfully!"
+msgstr ""
+
+#: source/session/panels/tracking.d:88
+msgid "Reset"
+msgstr ""
+
+#: source/session/panels/tracking.d:92
+msgid "Not tracked"
+msgstr ""
+
+#: source/session/panels/tracking.d:107
+msgid "X"
+msgstr ""
+
+#: source/session/panels/tracking.d:112
+msgid "Y"
+msgstr ""
+
+#: source/session/panels/tracking.d:117
+msgid "Z"
+msgstr ""
+
+#: source/session/panels/tracking.d:122
+msgid "Roll"
+msgstr ""
+
+#: source/session/panels/tracking.d:127
+msgid "Pitch"
+msgstr ""
+
+#: source/session/panels/tracking.d:132
+msgid "Yaw"
+msgstr ""
+
+#: source/session/panels/tracking.d:151
+msgid "Inverse"
+msgstr ""
+
+#: source/session/panels/tracking.d:153
+msgid "Dampen"
+msgstr ""
+
+#: source/session/panels/tracking.d:156
+msgid "Tracking In"
+msgstr ""
+
+#: source/session/panels/tracking.d:183
+msgid "Tracking Out"
+msgstr ""
+
+#: source/session/panels/tracking.d:198
+msgid "Refresh"
+msgstr ""
+
+#: source/session/panels/tracking.d:205
+msgid "Save to File"
+msgstr ""
+
+#: source/session/panels/tracking.d:225
+msgid "No settings available."
+msgstr ""
+
+#: source/session/panels/tracking.d:230
+msgid "No puppet selected"
+msgstr ""
+
+#: source/session/panels/tracking.d:235
+msgid "Tracking"
+msgstr ""
+
+#: source/session/tracking/package.d:352
+#, c-format
+msgid "%s (X)"
+msgstr ""
+
+#: source/session/tracking/package.d:355
+#, c-format
+msgid "%s (Y)"
+msgstr ""
+
+#: source/session/tracking/package.d:358
+#, c-format
+msgid "%s (Z)"
+msgstr ""
+
+#: source/session/tracking/package.d:361
+#, c-format
+msgid "%s (Roll)"
+msgstr ""
+
+#: source/session/tracking/package.d:364
+#, c-format
+msgid "%s (Pitch)"
+msgstr ""
+
+#: source/session/tracking/package.d:367
+#, c-format
+msgid "%s (Yaw)"
+msgstr ""
+
+#: source/session/windows/main.d:46 source/session/windows/spaceedit.d:22
+#: source/session/windows/spaceedit.d:181
+msgid "Error"
+msgstr ""
+
+#: source/session/windows/main.d:75
+msgid "File"
+msgstr ""
+
+#: source/session/windows/main.d:77
+msgid "Exit"
+msgstr ""
+
+#: source/session/windows/main.d:84
+msgid "View"
+msgstr ""
+
+#: source/session/windows/main.d:86
+msgid "Panels"
+msgstr ""
+
+#: source/session/windows/main.d:97
+msgid "Configuration"
+msgstr ""
+
+#: source/session/windows/main.d:99 source/session/windows/spaceedit.d:213
+msgid "Virtual Spaces"
+msgstr ""
+
+#: source/session/windows/main.d:106
+msgid "Plugins"
+msgstr ""
+
+#: source/session/windows/main.d:112
+msgid "Help"
+msgstr ""
+
+#: source/session/windows/main.d:113
+msgid "About"
+msgstr ""
+
+#: source/session/windows/main.d:122
+msgid "Double-click to show/hide UI"
+msgstr ""
+
+#: source/session/windows/main.d:126 source/session/windows/main.d:128
+msgid "Donate"
+msgstr ""
+
+#: source/session/windows/main.d:164
+msgid "Inochi Session"
+msgstr ""
+
+#: source/session/windows/main.d:165
+msgid ""
+"THIS IS BETA SOFTWARE\n"
+"\n"
+"This software is incomplete, please lower your expectations."
+msgstr ""
+
+#: source/session/windows/spaceedit.d:55 source/session/windows/spaceedit.d:70
+msgid "Delete"
+msgstr ""
+
+#: source/session/windows/spaceedit.d:130
+#: source/session/windows/spaceedit.d:195
+msgid ""
+msgstr ""
+
+#: source/session/windows/spaceedit.d:138
+msgid "No zone selected for editing..."
+msgstr ""
+
+#: source/session/windows/spaceedit.d:141
+msgid "Zone Name"
+msgstr ""
+
+#: source/session/windows/spaceedit.d:150
+msgid "Unset"
+msgstr ""
+
+#: source/session/windows/spaceedit.d:175
+msgid "Save Changes"
+msgstr ""
+
+#: source/session/windows/spaceedit.d:206
+msgid "Save"
+msgstr ""

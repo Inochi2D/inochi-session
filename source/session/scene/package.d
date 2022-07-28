@@ -14,6 +14,7 @@ import session.tracking.vspace;
 import session.panels.tracking : insTrackingPanelRefresh;
 import session.log;
 import std.string;
+import session.plugins;
 
 struct Scene {
     VirtualSpace space;
@@ -116,6 +117,7 @@ void insSceneAddPuppet(string path, Puppet puppet) {
 
 void insSceneInit() {
     insScene.space = insLoadVSpace();
+    trashcanTexture = new Texture(ShallowTexture(cast(ubyte[])import("tex/ui-delete.png")));
 }
 
 void insSceneCleanup() {
@@ -133,10 +135,47 @@ void insUpdateScene() {
     insScene.space.update();
 
     inBeginScene();
+
+        // Trashcan render variables
+        float trashcanScale = 1f;
+        float sizeOffset = 0f;
+        vec2 centerOffset = inCamera.getCenterOffset;
+        vec2 trashcanPos = vec2(
+            (inCamera.position.x-centerOffset.x)+TRASHCAN_DISPLACEMENT,
+            (inCamera.position.y+centerOffset.y)-(trashcanSize+TRASHCAN_DISPLACEMENT)
+        );
+
+        if (isMouseOverDelete) {
+            float scalePercent = (sin(currentTime()*2)+1)/2;
+            trashcanScale += 0.15*scalePercent;
+            sizeOffset = ((trashcanSize*trashcanScale)-trashcanSize)/2;
+        }
+
+        // Draw trashcan
+        inDrawTextureAtRect(
+            trashcanTexture, 
+            rect(
+                trashcanPos.x-sizeOffset, 
+                trashcanPos.y-sizeOffset, 
+                trashcanSize*trashcanScale, 
+                trashcanSize*trashcanScale
+            ), 
+            rect(0, 0, 1, 1), 
+            trashcanVisibility
+        );
         
+        // Update plugins
+        foreach(ref plugin; insPlugins) {
+            if (plugin.hasError) continue;
+
+            if (plugin.hasEvent("onUpdate")) {
+                plugin.callEvent("onUpdate", deltaTime());
+            }
+        }
 
         // Update every scene item
         foreach(ref sceneItem; insScene.sceneItems) {
+            
             foreach(ref binding; sceneItem.bindings) {
                 binding.update();
             }
@@ -149,6 +188,8 @@ void insUpdateScene() {
             }
         }
     inEndScene();
+
+    trashcanVisibility = dampen(trashcanVisibility, isDragDown ? 0.85 : 0, deltaTime(), 1);
 }
 
 /**
@@ -166,20 +207,36 @@ private {
     bool hasDonePuppetSelect;
     vec2 targetPos = vec2(0);
     float targetScale = 0;
+    vec2 targetSize = vec2(0);
+
+    bool isDragDown = false;
+    Camera inCamera;
+
+    enum TRASHCAN_DISPLACEMENT = 16;
+    float trashcanVisibility = 0;
+    float trashcanSize = 128;
+    Texture trashcanTexture;
+    rect deleteArea;
+    bool isMouseOverDelete;
 }
 
 void insInteractWithScene() {
     int width, height;
     inGetViewport(width, height);
+    
+    float trashcanHalfSize = trashcanSize/2;
+    deleteArea = rect(0, height-(TRASHCAN_DISPLACEMENT+trashcanHalfSize), trashcanHalfSize+TRASHCAN_DISPLACEMENT, trashcanHalfSize+TRASHCAN_DISPLACEMENT);
+    isMouseOverDelete = deleteArea.intersects(inInputMousePosition());
 
     import std.stdio : writeln;
-    Camera camera = inGetCamera();
+    inCamera = inGetCamera();
     vec2 mousePos = inInputMousePosition();
     vec2 mouseOffset = vec2(width/2, height/2);
+    vec2 cameraCenter = inCamera.getCenterOffset();
     mousePos = vec2(
         vec4(
-            (mousePos.x-mouseOffset.x+camera.position.x)/camera.scale.x,
-            (mousePos.y-mouseOffset.y+camera.position.y)/camera.scale.y,
+            (mousePos.x-mouseOffset.x+inCamera.position.x)/inCamera.scale.x,
+            (mousePos.y-mouseOffset.y+inCamera.position.y)/inCamera.scale.y,
             0, 
             1
         )
@@ -210,6 +267,7 @@ void insInteractWithScene() {
                         draggingPuppetStartPos = puppet.root.localTransform.translation.xy;
                         targetScale = puppet.root.localTransform.scale.x;
                         targetPos = draggingPuppetStartPos;
+                        targetSize = size;
                         draggingPuppet = puppet;
                         selectedPuppet = i;
                         selectedAny = true;
@@ -232,35 +290,116 @@ void insInteractWithScene() {
     if (hasDonePuppetSelect && draggingPuppet) {
         import bindbc.imgui : igSetMouseCursor, ImGuiMouseCursor;
         igSetMouseCursor(ImGuiMouseCursor.Hand);
+        float prevScale = targetScale;
+
+        float targetDelta = (inInputMouseScrollDelta()*0.05)*(1-clamp(targetScale, 0, 0.45));
         targetScale = clamp(
-            draggingPuppet.root.localTransform.scale.x+(inInputMouseScrollDelta()), 
+            targetScale+targetDelta, 
             0.25,
-            1000
+            5
         );
+        
+        if (targetScale != prevScale) {
+            inSetUpdateBounds(true);
+                vec4 lbounds = draggingPuppet.root.getCombinedBounds!true();
+                vec2 tl = vec4(lbounds.xy, 0, 1);
+                vec2 br = vec4(lbounds.zw, 0, 1);
+                targetSize = abs(br-tl);
+            inSetUpdateBounds(false);
+        }
     }
 
     // Model Movement
     if (inInputMouseDragging(MouseButton.Left) && hasDonePuppetSelect && draggingPuppet) {
         vec2 delta = inInputMouseDragDelta(MouseButton.Left);
         targetPos = vec2(
-            draggingPuppetStartPos.x+delta.x/camera.scale.x, 
-            draggingPuppetStartPos.y+delta.y/camera.scale.y, 
+            draggingPuppetStartPos.x+delta.x/inCamera.scale.x, 
+            draggingPuppetStartPos.y+delta.y/inCamera.scale.y, 
         );
     }
     
+    // Model clamping
+    {
+        float camPosClampX = (cameraCenter.x*2)+(targetSize.x/3);
+        float camPosClampY = (cameraCenter.y*2)+(targetSize.y/1.5);
+
+        // Clamp model to be within viewport
+        targetPos.x = clamp(
+            targetPos.x,
+            (inCamera.position.x-camPosClampX)*inCamera.scale.x,
+            (inCamera.position.x+camPosClampX)*inCamera.scale.x
+        );
+        targetPos.y = clamp(
+            targetPos.y,
+            (inCamera.position.y-camPosClampY)*inCamera.scale.y,
+            (inCamera.position.y+camPosClampY)*inCamera.scale.y
+        );
+    }
+
     // Apply Movement + Scaling
     if (draggingPuppet) {
-        draggingPuppet.root.localTransform.translation = dampen(
-            draggingPuppet.root.localTransform.translation,
-            vec3(targetPos, 0),
-            inGetDeltaTime()
-        );
+        if (isMouseOverDelete) {
 
-        // Dampen & clamp scaling
-        draggingPuppet.root.localTransform.scale = dampen(
-            draggingPuppet.root.localTransform.scale,
-            vec2(targetScale),
-            inGetDeltaTime()
-        );
+            // If the mouse was let go
+            if (isDragDown && !inInputMouseDown(MouseButton.Left)) {
+                if (selectedPuppet >= 0 && selectedPuppet < insScene.sceneItems.length) {
+                    
+                    import std.algorithm.mutation : remove;
+                    insScene.sceneItems = insScene.sceneItems.remove(selectedPuppet);
+                    draggingPuppet = null;
+                    selectedPuppet = -1;
+                    isDragDown = false;
+                    return;
+                }
+            }
+        }
+
+        isDragDown = inInputMouseDown(MouseButton.Left);
+
+        import bindbc.imgui : igIsKeyDown, ImGuiKey;
+        if (igIsKeyDown(ImGuiKey.LeftCtrl) || igIsKeyDown(ImGuiKey.RightCtrl)) {
+            float targetDelta = (inInputMouseScrollDelta()*0.05)*(1-clamp(targetScale, 0, 0.45));
+            targetScale = clamp(
+                targetScale+targetDelta, 
+                0.25,
+                5
+            );
+        }
+        
+
+        if (isDragDown && isMouseOverDelete) {
+            
+
+            draggingPuppet.root.localTransform.translation = dampen(
+                draggingPuppet.root.localTransform.translation,
+                vec3(
+                    (inCamera.position.x+(-cameraCenter.x)+128), 
+                    (inCamera.position.y+(cameraCenter.y)-128), 
+                    0
+                ),
+                inGetDeltaTime()
+            );
+
+            // Dampen & clamp scaling
+            draggingPuppet.root.localTransform.scale = dampen(
+                draggingPuppet.root.localTransform.scale,
+                vec2(0.025),
+                inGetDeltaTime()
+            );
+        } else {
+
+            draggingPuppet.root.localTransform.translation = dampen(
+                draggingPuppet.root.localTransform.translation,
+                vec3(targetPos, 0),
+                inGetDeltaTime()
+            );
+
+            // Dampen & clamp scaling
+            draggingPuppet.root.localTransform.scale = dampen(
+                draggingPuppet.root.localTransform.scale,
+                vec2(targetScale),
+                inGetDeltaTime()
+            );
+        }
     }
 }

@@ -11,6 +11,8 @@ import session.scene;
 import inochi2d;
 import inochi2d.math.serialization;
 import fghj;
+import i18n;
+import std.format;
 
 /**
     Binding Type
@@ -141,13 +143,13 @@ public:
     /**
         Expression (if in ExpressionBinding mode)
     */
-    Expression expr;
+    Expression* expr;
 
     /// Ratio for input
-    vec2 inRange;
+    vec2 inRange = vec2(0, 1);
 
     /// Ratio for output
-    vec2 outRange;
+    vec2 outRange = vec2(0, 1);
 
     /// Last input value
     float inVal = 0;
@@ -163,12 +165,12 @@ public:
     /**
         The axis to apply the binding to
     */
-    int axis;
+    int axis = 0;
 
     /**
         Dampening level
     */
-    int dampenLevel;
+    int dampenLevel = 0;
 
     /**
         Whether to inverse the binding
@@ -181,19 +183,21 @@ public:
             serializer.putValue(name);
             serializer.putKey("sourceName");
             serializer.putValue(sourceName);
+            serializer.putKey("sourceDisplayName");
+            serializer.putValue(sourceDisplayName);
             serializer.putKey("sourceType");
             serializer.serializeValue(sourceType);
             serializer.putKey("bindingType");
             serializer.serializeValue(type);
             serializer.putKey("param");
             serializer.serializeValue(param.uuid);
+            serializer.putKey("axis");
+            serializer.putValue(axis);
+            serializer.putKey("dampenLevel");
+            serializer.putValue(dampenLevel);
 
             switch(type) {
                 case BindingType.RatioBinding:
-                    serializer.putKey("axis");
-                    serializer.putValue(axis);
-                    serializer.putKey("dampenLevel");
-                    serializer.putValue(dampenLevel);
                     serializer.putKey("inverse");
                     serializer.putValue(inverse);
 
@@ -220,11 +224,11 @@ public:
         data["sourceType"].deserializeValue(sourceType);
         data["bindingType"].deserializeValue(type);
         data["param"].deserializeValue(paramUUID);
+        if (!data["dampenLevel"].isEmpty) data["dampenLevel"].deserializeValue(dampenLevel);
 
         switch(type) {
             case BindingType.RatioBinding:
                 data["axis"].deserializeValue(axis);
-                data["dampenLevel"].deserializeValue(dampenLevel);
                 data["inverse"].deserializeValue(inverse);
                 inRange.deserialize(data["inRange"]);
                 outRange.deserialize(data["outRange"]);
@@ -234,10 +238,12 @@ public:
                 string exprStr;
                 data["signature"].deserializeValue(exprSig);
                 data["expression"].deserializeValue(exprStr);
-                expr = Expression(exprSig, exprStr);
+                expr = new Expression(exprSig, exprStr);
                 break;
             default: break;
         }
+        
+        this.createSourceDisplayName();
         
         return null;
     }
@@ -262,36 +268,38 @@ public:
 
                 float src = 0;
 
-                switch(sourceType) {
+                if (insScene.space.currentZone) {
+                    switch(sourceType) {
 
-                    case SourceType.Blendshape:
-                        src = insScene.space.currentZone.getBlendshapeFor(sourceName);
-                        break;
+                        case SourceType.Blendshape:
+                            src = insScene.space.currentZone.getBlendshapeFor(sourceName);
+                            break;
 
-                    case SourceType.BonePosX:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).position.x;
-                        break;
+                        case SourceType.BonePosX:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).position.x;
+                            break;
 
-                    case SourceType.BonePosY:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).position.y;
-                        break;
+                        case SourceType.BonePosY:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).position.y;
+                            break;
 
-                    case SourceType.BonePosZ:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).position.z;
-                        break;
+                        case SourceType.BonePosZ:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).position.z;
+                            break;
 
-                    case SourceType.BoneRotRoll:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).rotation.roll.degrees;
-                        break;
+                        case SourceType.BoneRotRoll:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).rotation.roll.degrees;
+                            break;
 
-                    case SourceType.BoneRotPitch:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).rotation.pitch.degrees;
-                        break;
+                        case SourceType.BoneRotPitch:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).rotation.pitch.degrees;
+                            break;
 
-                    case SourceType.BoneRotYaw:
-                        src = insScene.space.currentZone.getBoneFor(sourceName).rotation.yaw.degrees;
-                        break;
-                    default: assert(0);
+                        case SourceType.BoneRotYaw:
+                            src = insScene.space.currentZone.getBoneFor(sourceName).rotation.yaw.degrees;
+                            break;
+                        default: assert(0);
+                    }
                 }
 
                 // Calculate the input ratio (within 0->1)
@@ -301,7 +309,13 @@ public:
                 // NOTE: Dampen level of 0 = no damping
                 // Dampen level 1-10 is inverse due to the dampen function taking *speed* as a value.
                 if (dampenLevel == 0) inVal = target;
-                else inVal = dampen(inVal, target, deltaTime(), cast(float)(11-dampenLevel));
+                else {
+                    inVal = dampen(inVal, target, deltaTime(), cast(float)(11-dampenLevel));
+
+                    // Fix anoying -e values from dampening
+                    if (inVal < 0.0001) inVal = 0;
+                    if (inVal > 0.9999) inVal = 1;
+                }
                 
                 // Calculate the output ratio (whatever outRange is)
                 outVal = unmapValue(inVal, outRange.x, outRange.y);
@@ -309,7 +323,19 @@ public:
                 break;
 
             case BindingType.ExpressionBinding:
-                param.value.vector[axis] += expr.call();
+                if (expr) {
+                    if (dampenLevel == 0) outVal = expr.call();
+                    else {
+                        
+                        outVal = dampen(outVal, expr.call(), deltaTime(), cast(float)(11-dampenLevel));
+
+                        // Fix anoying -e values from dampening
+                        if (outVal < 0.0001) outVal = 0;
+                        if (outVal > 0.9999) outVal = 1;
+                    }
+
+                    param.value.vector[axis] += param.unmapAxis(axis, outVal);
+                }
                 break; 
 
             // External bindings
@@ -333,5 +359,32 @@ public:
     */
     void lateUpdate() {
         param.value.vector[axis] += round(sum / weights);
+    }
+
+    void createSourceDisplayName() {
+        switch(sourceType) {
+            case SourceType.Blendshape:
+                sourceDisplayName = sourceName;
+                break;
+            case SourceType.BonePosX:
+                sourceDisplayName = _("%s (X)").format(sourceName);
+                break;
+            case SourceType.BonePosY:
+                sourceDisplayName = _("%s (Y)").format(sourceName);
+                break;
+            case SourceType.BonePosZ:
+                sourceDisplayName = _("%s (Z)").format(sourceName);
+                break;
+            case SourceType.BoneRotRoll:
+                sourceDisplayName = _("%s (Roll)").format(sourceName);
+                break;
+            case SourceType.BoneRotPitch:
+                sourceDisplayName = _("%s (Pitch)").format(sourceName);
+                break;
+            case SourceType.BoneRotYaw:
+                sourceDisplayName = _("%s (Yaw)").format(sourceName);
+                break;
+            default: assert(0);    
+        }
     }
 }

@@ -7,6 +7,8 @@
 module session.windows.main;
 import session.windows;
 import session.scene;
+import session.log;
+import session.framesend;
 import inui;
 import inui.widgets;
 import inui.toolwindow;
@@ -34,11 +36,23 @@ private:
     Adaptor adaptor;
     Texture logo;
 
+    void loadModels(string[] args) {
+        foreach(arg; args) {
+            import std.file : exists;
+            if (!exists(arg)) continue;
+            try {
+                insSceneAddPuppet(arg, inLoadPuppet(arg));
+            } catch(Exception ex) {
+                uiImDialog(__("Error"), "Could not load %s, %s".format(arg, ex.msg));
+            }
+        }
+    }
+
 protected:
     override
     void onEarlyUpdate() {
-
         insUpdateScene();
+        insSendFrame();
         inDrawScene(vec4(0, 0, width, height));
     }
 
@@ -49,12 +63,21 @@ protected:
             insInteractWithScene();
         }
 
+        if (getDraggedFiles().length > 0) {
+            loadModels(getDraggedFiles());
+        }
+
         if (showUI) {
             uiImBeginMainMenuBar();
                 vec2 avail = uiImAvailableSpace();
                 uiImImage(logo.getTextureId(), vec2(avail.y*2, avail.y*2));
 
                 if (uiImBeginMenu(__("File"))) {
+
+                    if (uiImMenuItem(__("Exit"))) {
+                        this.close();
+                    }
+
                     uiImEndMenu();
                 }
 
@@ -77,6 +100,19 @@ protected:
                         inPushToolWindow(new SpaceEditor());
                     }
 
+                    uiImEndMenu();
+                }
+
+                if (uiImBeginMenu(__("Plugins"))) {
+
+                    uiImEndMenu();
+                }
+
+
+                if (uiImBeginMenu(__("Help"))) {
+                    if (uiImMenuItem(__("About"))) {
+                    }
+                    
                     uiImEndMenu();
                 }
 
@@ -122,11 +158,7 @@ public:
         inSetViewport(windowSettings.width, windowSettings.height);
 
         // Preload any specified models
-        foreach(arg; args) {
-            import std.file : exists;
-            if (!exists(arg)) continue;
-            insSceneAddPuppet(arg, inLoadPuppet(arg));
-        }
+        loadModels(args);
 
         uiImDialog(
             __("Inochi Session"), 
@@ -137,5 +169,6 @@ public:
         inGetCamera().scale = vec2(0.5);
 
         logo = new Texture(ShallowTexture(cast(ubyte[])import("tex/logo.png")));
+
     }
 }

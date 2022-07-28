@@ -17,7 +17,10 @@ void insSaveVSpace(ref VirtualSpace space) {
 }
 
 VirtualSpace insLoadVSpace() {
-    if (!inSettingsCanGet("space")) return new VirtualSpace();
+    if (!inSettingsCanGet("space")) {
+        insLogInfo("No VirtualSpace found, creating a new one...");
+        return new VirtualSpace();
+    }
     return inSettingsGet!VirtualSpace("space", new VirtualSpace());
 }
 

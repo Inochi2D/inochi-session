@@ -15,10 +15,12 @@ import session.plugins;
 import session.log;
 import session.ver;
 import session.scene;
+import session.framesend;
+import session.tracking.expr;
+
 
 void main(string[] args) {
     insLogInfo("Inochi Session %s, args=%s", INS_VERSION, args[1..$]);
-    insLuaInit();
     
     // Set the application info
     InApplication appInfo = InApplication(
@@ -27,19 +29,29 @@ void main(string[] args) {
         "Inochi Session"                // Human-readable name
     );
     inSetApplication(appInfo);
+
+    // Initialize Lua
+    insLuaInit();
     
     // Initialize UI
     inInitUI();
-    insSceneInit();
+
+    // Initialize expressions before models are loaded.
+    insInitExpressions();
 
     // Open window and init Inochi2D
     auto window = new InochiSessionWindow(args[1..$]);
     
+    insSceneInit();
+    insInitFrameSending();
+
     // Draw window
     while(window.isAlive) {
         window.update();
     }
     
+    insCleanupExpressions();
+    insCleanupFrameSending();
     insSceneCleanup();
     inSettingsSave();
 }
