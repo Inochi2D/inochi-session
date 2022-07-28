@@ -69,6 +69,12 @@ void insInitExpressions() {
     state.register!((float val) { return (1.0+tan(val))/2.0; })("utan");
     state.register!((float val) { return abs(val); })("abs");
     state.register!((float val) { return sqrt(val); })("sqrt");
+    state.register!((float val) { return floor(val); })("floor");
+    state.register!((float val) { return ceil(val); })("ceil");
+    state.register!((float val) { return round(val); })("round");
+    state.register!((float a, float b) { return min(a, b); })("min");
+    state.register!((float a, float b) { return max(a, b); })("max");
+    state.register!((float x, float min, float max) { return clamp(x, min, max); })("clamp");
     state.register!((float a, float b, float  val) { return lerp(a, b, val); })("lerp");
     state.register!((float x, float tx, float y, float ty, float val) { return hermite(x, tx, y, ty, val); })("cubic");
     state.register!((float y, float x) { return atan2(y, x); })("atan2");
