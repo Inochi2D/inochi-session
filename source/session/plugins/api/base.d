@@ -1,28 +1,13 @@
-/*
-    Copyright © 2022, Inochi2D Project
-    Distributed under the 2-Clause BSD License, see LICENSE file.
-    
-    Authors: Luna Nielsen
-*/
-module session.plugins.api;
+module session.plugins.api.base;
 import lumars;
 import bindbc.lua;
 import std.string;
-import inui.widgets;
 import std.meta : AliasSeq;
-import std.stdio;
 import std.conv : text;
 import session.log;
+import std.stdio;
 
 private {
-    alias GUI_API = AliasSeq!(
-        "button", (string text) { return uiImButton(text.toStringz); },
-        "label", (string text) { uiImLabel(text); },
-        "error", (string title, string text) { uiImDialog(title.toStringz, text); },
-        "info", (string title, string text) { uiImDialog(title.toStringz, text, DialogLevel.Info); },
-        "warn", (string title, string text) { uiImDialog(title.toStringz, text, DialogLevel.Warning); },
-    );
-
     string idxToString(LuaState* state, int i) {
         switch(state.type(i)) {
             case LuaValue.Kind.nil:
@@ -85,11 +70,7 @@ private {
     }
 }
 
-void inPluginRegisterAll(LuaState* state) {
-
-    // Push all the APIs in
-    state.register!GUI_API("ui");
-
+void insRegisterBaseAPI(LuaState* state) {
     state.push(cast(lua_CFunction)&l_print);
     state.setGlobal("print");
     state.push(cast(lua_CFunction)&l_info);

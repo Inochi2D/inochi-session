@@ -10,6 +10,8 @@ import lumars;
 import bindbc.lua;
 import std.path;
 import std.file;
+import std.string;
+import i18n;
 
 class Plugin {
 private:
@@ -17,11 +19,14 @@ private:
     PluginInfo info;
     LuaState* state;
     LuaTable lGlobal;
+    const(char)* cName;
+    bool encounteredError;
 
 public:
 
     this(PluginInfo info, string workingDirectory, LuaState* state, LuaTable apiTable) {
         this.info = info;
+        this.cName = info.pluginName.toStringz;
         this.workingDirectory = workingDirectory;
         this.state = state;
 
@@ -46,17 +51,34 @@ public:
 
         // Execute whatever is in init.lua
         state.doString(readText(buildPath(workingDirectory, "init.lua")), lGlobal);
-        insLogInfo("Loaded plugin %s %s...", info.pluginName, info.pluginVersion);
-    
-        this.callEvent("myEvent", "a", 293595);
-        insLogInfo("has myEvent=%s", this.hasEvent("myEvent"));
-        insLogInfo("has xEvent=%s", this.hasEvent("xEvent"));
+        insLogInfo(_("Loaded plugin %s %s..."), info.pluginName, info.pluginVersion);
+
+        try {
+            if (this.hasEvent("onInit")) {
+                this.callEvent("onInit");
+            }
+        } catch (Exception ex) {
+
+            // Error display for plugins erroring out
+            insLogErr(_("%s (plugin): %s"), info.pluginName, ex.msg);
+        }
     }
 
+    void require(string file) {
+        string path = buildPath(workingDirectory, file);
+        state.doString(readText(path), lGlobal);
+    }
+
+    /**
+        Gets whether the plugin has the specified event
+    */
     bool hasEvent(string name) {
         return lGlobal.get!LuaValue(name).kind == LuaValue.Kind.func;
     }
 
+    /**
+        Calls an event within the plugin
+    */
     void callEvent(T...)(string name, T args) {
 
         auto top = state.top();
@@ -77,12 +99,33 @@ public:
 
         auto status = state.pcall(args.length, 0, 0);
         if (status != LuaStatus.ok) {
+            encounteredError = true;
             const error = state.get!string(-1);
             state.pop(state.top()-top);
             throw new Exception(error);
         }
     }
+
+    /**
+        Gets the null-terminated form of the name
+    */
+    const(char)* getCName() {
+        return cName;
+    }
     
+    /**
+        Gets whether any errors in the plugin has been encountered.
+    */
+    bool hasError() {
+        return encounteredError;
+    }
+
+    /**
+        Returns the plugin info associated with this plugin
+    */
+    PluginInfo getInfo() {
+        return info;
+    }
 }
 
 struct PluginInfo {

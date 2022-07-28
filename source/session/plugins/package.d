@@ -35,7 +35,7 @@ void insLuaInit() {
     state.copy(LUA_GLOBALSINDEX);
     state.setGlobal("_G");
 
-    inPluginRegisterAll(state);
+    insPluginRegisterAll(state);
     insEnumeratePlugins();
 }
 

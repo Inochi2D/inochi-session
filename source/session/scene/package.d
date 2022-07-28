@@ -14,6 +14,7 @@ import session.tracking.vspace;
 import session.panels.tracking : insTrackingPanelRefresh;
 import session.log;
 import std.string;
+import session.plugins;
 
 struct Scene {
     VirtualSpace space;
@@ -163,6 +164,14 @@ void insUpdateScene() {
             trashcanVisibility
         );
         
+        // Update plugins
+        foreach(ref plugin; insPlugins) {
+            if (plugin.hasError) continue;
+
+            if (plugin.hasEvent("onUpdate")) {
+                plugin.callEvent("onUpdate", deltaTime());
+            }
+        }
 
         // Update every scene item
         foreach(ref sceneItem; insScene.sceneItems) {
