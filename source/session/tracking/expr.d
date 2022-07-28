@@ -54,21 +54,24 @@ void insInitExpressions() {
         return insScene.space.currentZone.getBoneFor(name).rotation.yaw.degrees;
     })("YAW");
     
-    state.register!(() {
-        return currentTime();
-    })("time");
-    
-    state.register!((float val) {
-        return sin(val);
-    })("sin");
-    
-    state.register!((float val) {
-        return cos(val);
-    })("cos");
-
-    state.register!((float val) {
-        return tan(val);
-    })("tan");
+    state.register!(() { return currentTime(); })("time");
+    state.register!((float val) { return sin(val); })("sin");
+    state.register!((float val) { return cos(val); })("cos");
+    state.register!((float val) { return tan(val); })("tan");
+    state.register!((float val) { return sinh(val); })("sinh");
+    state.register!((float val) { return cosh(val); })("cosh");
+    state.register!((float val) { return tanh(val); })("tanh");
+    state.register!((float val) { return clamp(sin(val), 0, 1); })("psin");
+    state.register!((float val) { return clamp(cos(val), 0, 1); })("pcos");
+    state.register!((float val) { return clamp(tan(val), 0, 1); })("ptan");
+    state.register!((float val) { return (1.0+sin(val))/2.0; })("usin");
+    state.register!((float val) { return (1.0+cos(val))/2.0; })("ucos");
+    state.register!((float val) { return (1.0+tan(val))/2.0; })("utan");
+    state.register!((float val) { return abs(val); })("abs");
+    state.register!((float val) { return sqrt(val); })("sqrt");
+    state.register!((float a, float b, float  val) { return lerp(a, b, val); })("lerp");
+    state.register!((float x, float tx, float y, float ty, float val) { return hermite(x, tx, y, ty, val); })("cubic");
+    state.register!((float y, float x) { return atan2(y, x); })("atan2");
 }
 
 void insCleanupExpressions() {
@@ -147,6 +150,9 @@ public:
     float call() {
         if (lastError_.length > 0) return 0f;
 
+        int stackStartPos = state.top();
+        int returned = 0;
+
         try {
 
             // Attempt call
@@ -156,18 +162,27 @@ public:
                 return 0f;
             }
 
+            returned = state.top() - stackStartPos;
+
+
             // Type checking
             auto type = state.type(-1);
             if (type != LuaValue.Kind.number) {
+                state.pop(1);
                 import std.conv : text;
                 lastError_ = _("Expected %s, got %s").format(LuaValue.Kind.number.stringof, type.text);
                 return 0;
             }
 
+            // We always want to get the first value returned, in case someone sneakily tries to return multiple.
+            float val = state.get!float(-returned);
+            state.pop(returned);
+
             // Value return
-            return state.get!float(-1);
+            return val;
         
         } catch (Exception ex) {
+            state.pop(returned);
             
             // Other error occured.
             lastError_ = ex.msg;
