@@ -78,6 +78,8 @@ void insInitExpressions() {
     state.register!((float a, float b, float  val) { return lerp(a, b, val); })("lerp");
     state.register!((float x, float tx, float y, float ty, float val) { return hermite(x, tx, y, ty, val); })("cubic");
     state.register!((float y, float x) { return atan2(y, x); })("atan2");
+    state.register!((float value) { return degrees(value); })("degrees");
+    state.register!((float value) { return radians(value); })("radians");
 }
 
 void insCleanupExpressions() {
