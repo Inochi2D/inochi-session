@@ -224,7 +224,7 @@ public:
         data["sourceType"].deserializeValue(sourceType);
         data["bindingType"].deserializeValue(type);
         data["param"].deserializeValue(paramUUID);
-        data["dampenLevel"].deserializeValue(dampenLevel);
+        if (!data["dampenLevel"].isEmpty) data["dampenLevel"].deserializeValue(dampenLevel);
 
         switch(type) {
             case BindingType.RatioBinding:
