@@ -193,11 +193,11 @@ public:
             serializer.serializeValue(param.uuid);
             serializer.putKey("axis");
             serializer.putValue(axis);
+            serializer.putKey("dampenLevel");
+            serializer.putValue(dampenLevel);
 
             switch(type) {
                 case BindingType.RatioBinding:
-                    serializer.putKey("dampenLevel");
-                    serializer.putValue(dampenLevel);
                     serializer.putKey("inverse");
                     serializer.putValue(inverse);
 
@@ -224,11 +224,11 @@ public:
         data["sourceType"].deserializeValue(sourceType);
         data["bindingType"].deserializeValue(type);
         data["param"].deserializeValue(paramUUID);
+        data["dampenLevel"].deserializeValue(dampenLevel);
 
         switch(type) {
             case BindingType.RatioBinding:
                 data["axis"].deserializeValue(axis);
-                data["dampenLevel"].deserializeValue(dampenLevel);
                 data["inverse"].deserializeValue(inverse);
                 inRange.deserialize(data["inRange"]);
                 outRange.deserialize(data["outRange"]);
@@ -309,7 +309,13 @@ public:
                 // NOTE: Dampen level of 0 = no damping
                 // Dampen level 1-10 is inverse due to the dampen function taking *speed* as a value.
                 if (dampenLevel == 0) inVal = target;
-                else inVal = dampen(inVal, target, deltaTime(), cast(float)(11-dampenLevel));
+                else {
+                    inVal = dampen(inVal, target, deltaTime(), cast(float)(11-dampenLevel));
+
+                    // Fix anoying -e values from dampening
+                    if (inVal < 0.0001) inVal = 0;
+                    if (inVal > 0.9999) inVal = 1;
+                }
                 
                 // Calculate the output ratio (whatever outRange is)
                 outVal = unmapValue(inVal, outRange.x, outRange.y);
@@ -318,7 +324,16 @@ public:
 
             case BindingType.ExpressionBinding:
                 if (expr) {
-                    outVal = expr.call();
+                    if (dampenLevel == 0) outVal = expr.call();
+                    else {
+                        
+                        outVal = dampen(outVal, expr.call(), deltaTime(), cast(float)(11-dampenLevel));
+
+                        // Fix anoying -e values from dampening
+                        if (outVal < 0.0001) outVal = 0;
+                        if (outVal > 0.9999) outVal = 1;
+                    }
+
                     param.value.vector[axis] += param.unmapAxis(axis, outVal);
                 }
                 break; 

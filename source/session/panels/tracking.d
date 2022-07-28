@@ -23,6 +23,7 @@ private {
     }
 }
 
+// Refreshes the tracking bindings listed in the tracking panel (headers)
 void insTrackingPanelRefresh() {
     trackingFilter = "";
     paramNames = null;    
@@ -38,6 +39,7 @@ private:
     TrackingSource[] sources;
     string[] indexableSourceNames;
 
+    // Refreshes the list of tracking sources
     void refresh(ref TrackingBinding[] trackingBindings) {
         auto blendshapes = insScene.space.getAllBlendshapeNames();
         auto bones = insScene.space.getAllBoneNames();
@@ -86,6 +88,8 @@ private:
         }
     }
 
+    
+    // Settings popup for binding types
     pragma(inline, true)
     void settingsPopup(ref TrackingBinding binding) {
         uiImRightClickPopup("BINDING_SETTINGS");
@@ -109,9 +113,14 @@ private:
         }
     }
 
+    // Configuration panel for expression bindings
     void exprBinding(size_t i, ref TrackingBinding binding) {
         if (binding.expr) {
             string buf = binding.expr.expression;
+            
+            uiImLabel(_("Dampen"));
+            uiImDrag(binding.dampenLevel, 0, 10);
+
             if (uiImInputText("###EXPRESSION", buf)) {
                 binding.expr.expression = buf;
             }
@@ -136,6 +145,7 @@ private:
         }
     }
 
+    // Configuration panel for ratio bindings
     void ratioBinding(size_t i, ref TrackingBinding binding) {
         bool hasTrackingSrc = binding.sourceName.length > 0;
 
@@ -251,7 +261,9 @@ private:
             uiImPop();
         }
     }
+
 protected:
+
     override 
     void onUpdate() {
         auto item = insSceneSelectedSceneItem();
