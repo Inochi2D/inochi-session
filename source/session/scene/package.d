@@ -166,7 +166,7 @@ void insUpdateScene() {
         
         // Update plugins
         foreach(ref plugin; insPlugins) {
-            if (plugin.hasError) continue;
+            if (!plugin.isEnabled) continue;
 
             if (plugin.hasEvent("onUpdate")) {
                 plugin.callEvent("onUpdate", deltaTime());

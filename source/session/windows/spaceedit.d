@@ -210,6 +210,6 @@ public:
     }
 
     this() {
-        super(_("Virtual Spaces"));
+        super(_("Virtual Space"));
     }
 }

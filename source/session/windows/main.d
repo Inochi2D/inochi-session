@@ -9,6 +9,7 @@ import session.windows;
 import session.scene;
 import session.log;
 import session.framesend;
+import session.plugins;
 import inui;
 import inui.widgets;
 import inui.toolwindow;
@@ -96,7 +97,7 @@ protected:
 
                     uiImLabelColored(_("Configuration"), vec4(0.8, 0.3, 0.3, 1));
                     uiImSeperator();
-                    if (uiImMenuItem(__("Virtual Spaces"))) {
+                    if (uiImMenuItem(__("Virtual Space"))) {
                         inPushToolWindow(new SpaceEditor());
                     }
 
@@ -105,11 +106,32 @@ protected:
 
                 if (uiImBeginMenu(__("Plugins"))) {
 
+                    uiImLabelColored(_("Plugins"), vec4(0.8, 0.3, 0.3, 1));
+                    uiImSeperator();
+
+                    foreach(plugin; insPlugins) {
+                        if (uiImMenuItem(plugin.getCName, "", plugin.isEnabled)) {
+                            plugin.isEnabled = !plugin.isEnabled;
+                            insSavePluginState();
+                        }
+                    }
+
+                    uiImNewLine();
+
+                    uiImLabelColored(_("Tools"), vec4(0.8, 0.3, 0.3, 1));
+                    uiImSeperator();
+                    if (uiImMenuItem(__("Rescan Plugins"))) {
+                        insEnumeratePlugins();
+                    }
+
                     uiImEndMenu();
                 }
 
 
                 if (uiImBeginMenu(__("Help"))) {
+                    if (uiImMenuItem(__("Documentation"))) {
+                        uiOpenLink("https://github.com/Inochi2D/inochi-session/wiki");
+                    }
                     if (uiImMenuItem(__("About"))) {
                     }
                     
