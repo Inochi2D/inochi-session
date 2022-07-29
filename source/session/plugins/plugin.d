@@ -25,12 +25,10 @@ private {
 
         // Set __index = _G for lGlobal
         LuaTable meta = LuaTable.makeNew(state);
-        env.push();
         meta.push();
         state.push("__index");
         gTable.push();
         state.rawSet(-3);
-        state.pop(1);
         
         // Set meta as our meta table
         env.setMetatable(meta);
