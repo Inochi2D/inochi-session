@@ -3,6 +3,8 @@ import session.log;
 import inochi2d;
 import bindbc.opengl;
 import i18n;
+import std.format;
+import std.string;
 
 version(Windows) {
     import bindbc.spout2;
@@ -23,9 +25,17 @@ void insInitFrameSending() {
     version(Windows) {
         auto loadMode = loadSpout2();
         loadSuccessful = loadMode == Spout2Support.spout2;
+        
         if (loadSuccessful) {
+            string senderName = "Inochi Session";
             spHandle = spGetSpout();
-            spSetSenderName(spHandle, "Inochi Session");
+
+            int i = 1;
+            while (spFindSenderName(spHandle, cast(char*)senderName.toStringz)) {
+                senderName = "Inochi Session (%s)".format(i);
+            }
+
+            spSetSenderName(spHandle, senderName.toStringz);
             spSetSenderFormat(spHandle, 28); // DXGI 8-bit RGBA
         }
     }
