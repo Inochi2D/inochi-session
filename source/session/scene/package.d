@@ -140,6 +140,11 @@ void insSceneCleanup() {
 }
 
 void insUpdateScene() {
+    // Get viewport
+    int viewportWidth, viewportHeight;
+    inGetViewport(viewportWidth, viewportHeight);
+
+    // Update physics managment
     inUpdate();
 
     // Update virtual spaces
@@ -155,8 +160,6 @@ void insUpdateScene() {
     {
         float trashcanScale = 1f;
         float sizeOffset = 0f;
-        int viewportWidth, viewportHeight;
-        inGetViewport(viewportWidth, viewportHeight);
 
 
         if (isMouseOverDelete) {
@@ -187,9 +190,26 @@ void insUpdateScene() {
     inBeginScene();
 
         if (insScene.backgroundImage) {
+            float texWidth = insScene.backgroundImage.width;
+            float texHeight = insScene.backgroundImage.height;
+            
+            float scale = max(cast(float)viewportWidth/cast(float)texWidth, cast(float)viewportHeight/cast(float)texHeight);
+            
+            rect bounds = rect(
+                0,
+                0,
+                texWidth*scale,
+                texHeight*scale
+            );
+
+            bounds.x = (viewportWidth/2);
+            bounds.y = (viewportHeight/2);
+            
             AppBatch.draw(
                 insScene.backgroundImage,
-                rect(0, 0, insScene.backgroundImage.width, insScene.backgroundImage.height)
+                bounds,
+                rect.init,
+                vec2(bounds.width/2, bounds.height/2)
             );
             AppBatch.flush();
         }
