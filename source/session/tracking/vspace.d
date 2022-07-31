@@ -1,3 +1,9 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.tracking.vspace;
 import session.log;
 import std.uni : toLower;
@@ -31,6 +37,7 @@ class VirtualSpace {
 private:
     VirtualSpaceZone[] zones;
     size_t activeZone;
+    bool hasAnyFocus_ = true;
 
     Adaptor[] allSources;
     string[] allBlendshapes;
@@ -129,6 +136,10 @@ public:
         return allSources;
     }
 
+    bool hasAnyFocus() {
+        return hasAnyFocus_;
+    }
+
     /**
         Adds a zone
     */
@@ -165,6 +176,10 @@ public:
         rebuildZoneList();
     }
 
+    bool isCurrentZoneActive() {
+        return currentZone.sources.length > 0 && currentZone.sources[0] && currentZone.sources[0].isReceivingData;
+    }
+
     /**
         Updates the virtual space
     */
@@ -184,11 +199,11 @@ public:
             }
         }
 
-        // Update zones
-        if (currentZone.sources.length > 0 && currentZone.sources[0] && !currentZone.sources[0].isReceivingData) {
+        hasAnyFocus_ = isCurrentZoneActive();
+        if (!hasAnyFocus_) {
             foreach(i, ref zone; zones) {
                 if (zone.sources.length == 0) continue;
-                
+
                 if (zone.sources[0].isReceivingData) {
                     activeZone = i;
                 }
@@ -249,15 +264,21 @@ public:
 
                         // NOTE: inochi-session should ALWAYS be the appName.
                         xdata["appName"] = "inochi-session";
-                        adaptor = ftCreateAdaptor(type, xdata);
+                        adaptor = ftCreateAdaptor(type);
+                        adaptor.setOptions(xdata);
+
+                        if (adaptor) sources ~= adaptor;
+                        adaptor.start();
                     } else {
                         
                         // NOTE: inochi-session should ALWAYS be the appName.
                         xdata["appName"] = "inochi-session";
-                        adaptor = ftCreateAdaptor(type, xdata);
-                    }
+                        adaptor = ftCreateAdaptor(type);
+                        adaptor.setOptions(xdata);
                     
-                    if (adaptor) sources ~= adaptor;
+                        if (adaptor) sources ~= adaptor;
+                        adaptor.start();
+                    }
                 } catch (Exception ex) {
                     insLogErr("%s: %s", name, ex.msg);
                 }
