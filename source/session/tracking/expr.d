@@ -1,3 +1,9 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.tracking.expr;
 import session.tracking;
 import session.scene;
@@ -5,7 +11,7 @@ import session.log;
 import ft;
 import inochi2d;
 import lumars;
-import bindbc.lua : luaL_newstate, luaopen_math;
+import bindbc.lua : luaL_newstate, luaopen_math, lua_close;
 import std.format;
 import i18n;
 
@@ -83,6 +89,7 @@ void insInitExpressions() {
 }
 
 void insCleanupExpressions() {
+    lua_close(state.handle());
     destroy(state);
 }
 

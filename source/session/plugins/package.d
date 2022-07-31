@@ -1,3 +1,9 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.plugins;
 public import session.plugins.plugin;
 import session.plugins.api;
@@ -45,6 +51,11 @@ void insLuaInit() {
 
     insPluginRegisterAll(state);
     insEnumeratePlugins();
+}
+
+void insLuaUnload() {
+    lua_close(state.handle());
+    destroy(state);
 }
 
 void insSavePluginState() {

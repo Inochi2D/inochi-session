@@ -51,6 +51,7 @@ void main(string[] args) {
     }
     
     insCleanupExpressions();
+    insLuaUnload();
     insCleanupFrameSending();
     insSceneCleanup();
     inSettingsSave();

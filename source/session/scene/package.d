@@ -124,7 +124,12 @@ void insSceneCleanup() {
     insSaveVSpace(insScene.space);
 
     foreach(ref source; insScene.space.getAllSources()) {
-        if (source) destroy(source);
+        if (source) {
+            if (source.isRunning()) {
+                source.stop();
+            }
+            destroy(source);
+        }
     }
 }
 
