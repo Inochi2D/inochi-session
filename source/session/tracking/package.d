@@ -13,6 +13,7 @@ import inochi2d.math.serialization;
 import fghj;
 import i18n;
 import std.format;
+import std.math.rounding : quantize;
 
 /**
     Binding Type
@@ -304,7 +305,6 @@ public:
                     param.value.vector[axis] = dampen(param.value.vector[axis], param.defaults.vector[axis], deltaTime(), 1);
                     
                     // Fix anoying -e values from dampening
-                    import std.math.rounding : quantize;
                     param.value.vector[axis] = quantize(param.value.vector[axis], 0.0001);
                     break;
                 }
@@ -318,10 +318,7 @@ public:
                 if (dampenLevel == 0) inVal = target;
                 else {
                     inVal = dampen(inVal, target, deltaTime(), cast(float)(11-dampenLevel));
-
-                    // Fix anoying -e values from dampening
-                    if (inVal < 0.0001) inVal = 0;
-                    if (inVal > 0.9999) inVal = 1;
+                    inVal = quantize(inVal, 0.0001);
                 }
                 
                 // Calculate the output ratio (whatever outRange is)
@@ -330,16 +327,12 @@ public:
                 break;
 
             case BindingType.ExpressionBinding:
-                param.value.vector[axis] = 0;
                 if (expr) {
                     if (dampenLevel == 0) outVal = expr.call();
                     else {
                         
                         outVal = dampen(outVal, expr.call(), deltaTime(), cast(float)(11-dampenLevel));
-
-                        // Fix anoying -e values from dampening
-                        if (outVal < 0.0001) outVal = 0;
-                        if (outVal > 0.9999) outVal = 1;
+                        outVal = quantize(inVal, 0.0001);
                     }
 
                     param.value.vector[axis] = param.unmapAxis(axis, outVal);
