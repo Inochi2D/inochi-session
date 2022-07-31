@@ -23,11 +23,28 @@ private:
     vec4 clearColor = vec4(0);
 
     void loadBackground(string file) {
+        if (file.empty) {
+            insScene.bgPath = null;
+            insScene.backgroundImage = null;
+            inSettingsSet("bgPath", null);
+            return;
+        }
+
         try {
-            insScene.backgroundImage = new Texture(file);
+            insScene.bgPath = file;
+            ShallowTexture tex = ShallowTexture(file);
+            inTexPremultiply(tex.data);
+            insScene.backgroundImage = new Texture(tex);
+            inSettingsSet("bgPath", insScene.bgPath);
         } catch (Exception ex) {
             uiImDialog(__("Error"), _("Could not load %s, %s").format(file, ex.msg));
         }
+    }
+
+    void setBGColor(vec4 color) {
+        clearColor = vec4(color.r, color.g, color.b, color.a);
+        inSetClearColor(color.r, color.g, color.b, color.a);
+        inSettingsSet!(float[4])("bgColor", [color.r, color.g, color.b, color.a]);
     }
 
 protected:
@@ -43,34 +60,29 @@ protected:
                 inSetClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
             }
 
-
             uiImLabelColored(_("Color Swatches"), vec4(0.8, 0.3, 0.3, 1));
             uiImIndent();
                 
                 if (uiImColorSwatch4(__("Full Transparent"), vec4(0, 0, 0, 0))) {
-                    clearColor = vec4(0, 0, 0, 0);
-                    inSetClearColor(0, 0, 0, 0);
+                    this.setBGColor(vec4(0, 0, 0, 0));
                 }
 
                 uiImSameLine(0, 4);
                 
                 if (uiImColorSwatch4(__("Chroma Key Red"), vec4(1, 0, 0, 1))) {
-                    clearColor = vec4(1, 0, 0, 1);
-                    inSetClearColor(1, 0, 0, 1);
+                    this.setBGColor(vec4(1, 0, 0, 1));
                 }
 
                 uiImSameLine(0, 4);
 
                 if (uiImColorSwatch4(__("Chroma Key Green"), vec4(0, 1, 0, 1))) {
-                    clearColor = vec4(0, 1, 0, 1);
-                    inSetClearColor(0, 1, 0, 1);
+                    this.setBGColor(vec4(0, 1, 0, 1));
                 }
 
                 uiImSameLine(0, 4);
                 
                 if (uiImColorSwatch4(__("Chroma Key Blue"), vec4(0, 0, 1, 1))) {
-                    clearColor = vec4(0, 0, 1, 1);
-                    inSetClearColor(0, 0, 1, 1);
+                    this.setBGColor(vec4(0, 0, 1, 1));
                 }
             uiImUnindent();
         uiImUnindent();
@@ -113,6 +125,14 @@ protected:
                             break;
                     }
                 }
+            }
+        }
+
+        if (insScene.backgroundImage) {
+            igSameLine(0, 4);
+            
+            if (uiImButton(__("Remove"))) {
+                this.loadBackground(null);
             }
         }
     }

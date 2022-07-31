@@ -22,6 +22,7 @@ struct Scene {
     VirtualSpace space;
     SceneItem[] sceneItems;
 
+    string bgPath;
     Texture backgroundImage;
 }
 
@@ -124,6 +125,20 @@ void insSceneInit() {
     inTexPremultiply(tex.data);
     trashcanTexture = new Texture(tex);
     AppBatch = new SpriteBatch();
+
+    insScene.bgPath = inSettingsGet!string("bgPath");
+    if (insScene.bgPath) {
+        try {
+            tex = ShallowTexture(insScene.bgPath);
+            inTexPremultiply(tex.data);
+            insScene.backgroundImage = new Texture(tex);
+        } catch (Exception ex) {
+            insLogErr("%s", ex.msg);
+        }
+    }
+
+    float[4] bgColor = inSettingsGet!(float[4])("bgColor", [0, 0, 0, 0]);
+    inSetClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
 }
 
 void insSceneCleanup() {
