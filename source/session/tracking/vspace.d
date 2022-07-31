@@ -264,6 +264,7 @@ public:
 
                         // NOTE: inochi-session should ALWAYS be the appName.
                         xdata["appName"] = "inochi-session";
+                        if (type == "VMC Receiver") xdata["address"] = "0.0.0.0";
                         adaptor = ftCreateAdaptor(type);
                         adaptor.setOptions(xdata);
 
@@ -273,11 +274,11 @@ public:
                         
                         // NOTE: inochi-session should ALWAYS be the appName.
                         xdata["appName"] = "inochi-session";
+                        if (type == "VMC Receiver") xdata["address"] = "0.0.0.0";
                         adaptor = ftCreateAdaptor(type);
                         adaptor.setOptions(xdata);
                     
                         if (adaptor) sources ~= adaptor;
-                        adaptor.start();
                     }
                 } catch (Exception ex) {
                     insLogErr("%s: %s", name, ex.msg);
