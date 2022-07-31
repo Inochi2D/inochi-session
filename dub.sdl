@@ -21,7 +21,6 @@ preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --m
 
 
 lflags "-rpath=$$ORIGIN" platform="linux"
-lflags "-rpath=." platform="osx"
 dflags "-mscrtlib=msvcrt" platform="windows-ldc"    // Use the dynamic CRT on Windows.
 //dflags "-flto=full" platform="ldc"		            // Enable Link Time Optimizations (LTO)
 //dflags "-link-defaultlib-shared" platform="ldc"	    // Use the shared D runtime
