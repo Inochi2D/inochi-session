@@ -4,10 +4,10 @@ authors "Inochi2D Project"
 copyright "Copyright © 2021, Inochi2D Project"
 license "BSD 2-clause"
 dependency "tinyfiledialogs" version="~>0.10.1"
-dependency "facetrack-d" version="~>0.6.0"
+dependency "facetrack-d" version="~>0.6.2"
 dependency "bindbc-imgui" version="~>0.7.0"
 dependency "inui" version="~>1.0.0"
-dependency "lumars" version="~>1.3.0"
+dependency "lumars" version="~>1.4.1"
 dependency "bindbc-sdl" version="~>1.1.2"
 dependency "i18n-d" version="~>1.0.1"
 dependency "inochi2d" version="~>1.0.0"
@@ -21,7 +21,6 @@ preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --m
 
 
 lflags "-rpath=$$ORIGIN" platform="linux"
-lflags "-rpath=." platform="osx"
 dflags "-mscrtlib=msvcrt" platform="windows-ldc"    // Use the dynamic CRT on Windows.
 //dflags "-flto=full" platform="ldc"		            // Enable Link Time Optimizations (LTO)
 //dflags "-link-defaultlib-shared" platform="ldc"	    // Use the shared D runtime
@@ -38,7 +37,7 @@ configuration "barebones" {
 configuration "win32-barebones" {
 	platforms "windows"
 	
-	dependency "bindbc-spout2" version="~>0.1.0"
+	dependency "bindbc-spout2" version="~>0.1.1"
 
 	targetType "executable"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup"
@@ -72,7 +71,7 @@ configuration "osx-full" {
 configuration "win32-full" {
 	platforms "windows"
 
-	dependency "bindbc-spout2" version="~>0.1.0"
+	dependency "bindbc-spout2" version="~>0.1.1"
 
 	targetType "executable"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="window-dmd"
@@ -84,7 +83,7 @@ configuration "win32-full" {
 configuration "win32-lite" {
 	platforms "windows"
 
-	dependency "bindbc-spout2" version="~>0.1.0"
+	dependency "bindbc-spout2" version="~>0.1.1"
 
 	targetType "executable"
 	versions "InBranding" "InLite"

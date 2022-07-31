@@ -9,6 +9,7 @@ import session.windows;
 import session.scene;
 import session.log;
 import session.framesend;
+import session.plugins;
 import inui;
 import inui.widgets;
 import inui.toolwindow;
@@ -19,6 +20,7 @@ import ft;
 import i18n;
 import inui.utils.link;
 import std.format;
+import session.ver;
 
 private {
     struct InochiWindowSettings {
@@ -61,10 +63,10 @@ protected:
         if (!inInputIsInUI()) {
             if (inInputMouseDoubleClicked(MouseButton.Left)) this.showUI = !showUI;
             insInteractWithScene();
-        }
 
-        if (getDraggedFiles().length > 0) {
-            loadModels(getDraggedFiles());
+            if (getDraggedFiles().length > 0) {
+                loadModels(getDraggedFiles());
+            }
         }
 
         if (showUI) {
@@ -96,7 +98,7 @@ protected:
 
                     uiImLabelColored(_("Configuration"), vec4(0.8, 0.3, 0.3, 1));
                     uiImSeperator();
-                    if (uiImMenuItem(__("Virtual Spaces"))) {
+                    if (uiImMenuItem(__("Virtual Space"))) {
                         inPushToolWindow(new SpaceEditor());
                     }
 
@@ -105,12 +107,35 @@ protected:
 
                 if (uiImBeginMenu(__("Plugins"))) {
 
+                    uiImLabelColored(_("Plugins"), vec4(0.8, 0.3, 0.3, 1));
+                    uiImSeperator();
+
+                    foreach(plugin; insPlugins) {
+                        if (uiImMenuItem(plugin.getCName, "", plugin.isEnabled)) {
+                            plugin.isEnabled = !plugin.isEnabled;
+                            insSavePluginState();
+                        }
+                    }
+
+                    uiImNewLine();
+
+                    uiImLabelColored(_("Tools"), vec4(0.8, 0.3, 0.3, 1));
+                    uiImSeperator();
+                    if (uiImMenuItem(__("Rescan Plugins"))) {
+                        insEnumeratePlugins();
+                    }
+
                     uiImEndMenu();
                 }
 
 
                 if (uiImBeginMenu(__("Help"))) {
+                    if (uiImMenuItem(__("Documentation"))) {
+                        uiOpenLink("https://github.com/Inochi2D/inochi-session/wiki");
+                    }
                     if (uiImMenuItem(__("About"))) {
+                        uiImDialog(__("Inochi Session"),
+                        "Inochi Session %s\n(Inochi2D %s)\n\nMade with <3\nby Luna the Foxgirl and Inochi2D Contributors.".format(INS_VERSION, IN_VERSION), DialogLevel.Info);
                     }
                     
                     uiImEndMenu();
@@ -151,7 +176,8 @@ public:
         InochiWindowSettings windowSettings = 
             inSettingsGet!InochiWindowSettings("window", InochiWindowSettings(1024, 1024));
 
-        super("Inochi Session", windowSettings.width, windowSettings.height);
+        import session.ver;
+        super("Inochi Session %s".format(INS_VERSION), windowSettings.width, windowSettings.height);
         
         // Initialize Inochi2D
         inInit(&inGetTime);
@@ -160,11 +186,11 @@ public:
         // Preload any specified models
         loadModels(args);
 
-        uiImDialog(
-            __("Inochi Session"), 
-            _("THIS IS BETA SOFTWARE\n\nThis software is incomplete, please lower your expectations."), 
-            DialogLevel.Warning
-        );
+        // uiImDialog(
+        //     __("Inochi Session"), 
+        //     _("THIS IS BETA SOFTWARE\n\nThis software is incomplete, please lower your expectations."), 
+        //     DialogLevel.Warning
+        // );
 
         inGetCamera().scale = vec2(0.5);
 

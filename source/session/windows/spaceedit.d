@@ -1,3 +1,9 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.windows.spaceedit;
 import session.scene;
 import session.tracking.vspace;
@@ -83,7 +89,7 @@ private:
         if (uiImBeginComboBox(adaptorName)) {
             if (uiImSelectable("VTubeStudio")) {
                 if (source) source.stop();
-
+                
                 source = new VTSAdaptor();
                 editingZone.sources[i] = source;
                 refreshOptionsList();
@@ -166,9 +172,16 @@ public:
                                             
                                             adaptorSelect(i, source, adaptorName);
 
+                                            igNewLine();
+
                                             foreach(option; source.getOptionNames()) {
+                                                
+                                                // Skip options which shouldn't be shown
                                                 if (option == "appName") continue;
+                                                if (option == "address") continue;
+
                                                 if (option !in options[source]) options[source][option] = "";
+                                                uiImLabel(option);
                                                 uiImInputText(option, avail.x/2, options[source][option]);
                                             }
 
@@ -210,6 +223,6 @@ public:
     }
 
     this() {
-        super(_("Virtual Spaces"));
+        super(_("Virtual Space"));
     }
 }

@@ -13,6 +13,7 @@ import inochi2d.math.serialization;
 import fghj;
 import i18n;
 import std.format;
+import std.math.rounding : quantize;
 
 /**
     Binding Type
@@ -207,8 +208,6 @@ public:
                     outRange.serialize(serializer);
                     break;
                 case BindingType.ExpressionBinding:
-                    serializer.putKey("signature");
-                    serializer.putValue(expr.signature());
                     serializer.putKey("expression");
                     serializer.putValue(expr.expression());
                     break;
@@ -234,11 +233,9 @@ public:
                 outRange.deserialize(data["outRange"]);
                 break;
             case BindingType.ExpressionBinding:
-                string exprSig;
                 string exprStr;
-                data["signature"].deserializeValue(exprSig);
                 data["expression"].deserializeValue(exprStr);
-                expr = new Expression(exprSig, exprStr);
+                expr = new Expression(insExpressionGenerateSignature(cast(int)this.hashOf(), axis), exprStr);
                 break;
             default: break;
         }
@@ -259,15 +256,16 @@ public:
         Updates the parameter binding
     */
     void update() {
-        param.value.vector[axis] = 0;
         sum = 0;
 
         switch(type) {
             case BindingType.RatioBinding:
-                if (sourceName.length == 0) break;
+                if (sourceName.length == 0) {
+                    param.value.vector[axis] = param.defaults.vector[axis];
+                    break;
+                }
 
                 float src = 0;
-
                 if (insScene.space.currentZone) {
                     switch(sourceType) {
 
@@ -302,6 +300,15 @@ public:
                     }
                 }
 
+                // Smoothly transition back to default pose if tracking is lost.
+                if (!insScene.space.hasAnyFocus()) {
+                    param.value.vector[axis] = dampen(param.value.vector[axis], param.defaults.vector[axis], deltaTime(), 1);
+                    
+                    // Fix anoying -e values from dampening
+                    param.value.vector[axis] = quantize(param.value.vector[axis], 0.0001);
+                    break;
+                }
+
                 // Calculate the input ratio (within 0->1)
                 float target = mapValue(src, inRange.x, inRange.y);
                 if (inverse) target = 1f-target;
@@ -311,15 +318,12 @@ public:
                 if (dampenLevel == 0) inVal = target;
                 else {
                     inVal = dampen(inVal, target, deltaTime(), cast(float)(11-dampenLevel));
-
-                    // Fix anoying -e values from dampening
-                    if (inVal < 0.0001) inVal = 0;
-                    if (inVal > 0.9999) inVal = 1;
+                    inVal = quantize(inVal, 0.0001);
                 }
                 
                 // Calculate the output ratio (whatever outRange is)
                 outVal = unmapValue(inVal, outRange.x, outRange.y);
-                param.value.vector[axis] += param.unmapAxis(axis, outVal);
+                param.value.vector[axis] = param.unmapAxis(axis, outVal);
                 break;
 
             case BindingType.ExpressionBinding:
@@ -328,13 +332,10 @@ public:
                     else {
                         
                         outVal = dampen(outVal, expr.call(), deltaTime(), cast(float)(11-dampenLevel));
-
-                        // Fix anoying -e values from dampening
-                        if (outVal < 0.0001) outVal = 0;
-                        if (outVal > 0.9999) outVal = 1;
+                        outVal = quantize(inVal, 0.0001);
                     }
 
-                    param.value.vector[axis] += param.unmapAxis(axis, outVal);
+                    param.value.vector[axis] = param.unmapAxis(axis, outVal);
                 }
                 break; 
 
@@ -358,7 +359,7 @@ public:
         Apply all the weighted plugin values
     */
     void lateUpdate() {
-        param.value.vector[axis] += round(sum / weights);
+        if (weights > 0) param.value.vector[axis] += round(sum / weights);
     }
 
     void createSourceDisplayName() {

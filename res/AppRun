@@ -2,4 +2,4 @@
 
 HERE="$(dirname "$(readlink -f "${0}")")"
 EXEC="${HERE}/usr/bin/inochi-session"
-exec "${EXEC}"
+LD_LIBRARY_PATH="${HERE}/usr/lib" exec "${EXEC}"

@@ -1,3 +1,9 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.panels.plugin;
 import session.tracking.expr;
 import session.plugins;
@@ -21,27 +27,29 @@ protected:
     
         foreach(ref plugin; insPlugins) {
             uiImPush(&plugin);
-                if (uiImHeader(plugin.getCName(), true)) {
-                    uiImPushTextWrapPos();
-                        uiImIndent();
-                            if (plugin.hasError) {
-                                uiImLabelColored(
-                                    _("%s has crashed, options are disabled.").format(plugin.getInfo().pluginName), 
-                                    vec4(1, 0.3, 0.3, 1)
-                                );
-                            } else if (plugin.hasEvent("onRenderUI")) {
-                                    insPluginBeginUI();
-                                    try {
-                                        plugin.callEvent("onRenderUI");
-                                    } catch(Exception ex) {
-                                        insLogErr(_("%s (plugin): %s"), plugin.getInfo().pluginId, ex.msg);
-                                    }
-                                    insPluginEndUI();
-                            } else {
-                                uiImLabel(_("Plugin cannot be configured."));
-                            }
-                        uiImUnindent();
-                    uiImPopTextWrapPos();
+                if (plugin.isEnabled && !plugin.hasError) {
+                    if (uiImHeader(plugin.getCName(), true)) {
+                        uiImPushTextWrapPos();
+                            uiImIndent();
+                                if (plugin.hasError) {
+                                    uiImLabelColored(
+                                        _("%s has crashed, options are disabled.").format(plugin.getInfo().pluginName), 
+                                        vec4(1, 0.3, 0.3, 1)
+                                    );
+                                } else if (plugin.hasEvent("onRenderUI")) {
+                                        insPluginBeginUI();
+                                        try {
+                                            plugin.callEvent("onRenderUI");
+                                        } catch(Exception ex) {
+                                            insLogErr(_("%s (plugin): %s"), plugin.getInfo().pluginId, ex.msg);
+                                        }
+                                        insPluginEndUI();
+                                } else {
+                                    uiImLabel(_("Plugin cannot be configured."));
+                                }
+                            uiImUnindent();
+                        uiImPopTextWrapPos();
+                    }
                 }
             uiImPop();
         }

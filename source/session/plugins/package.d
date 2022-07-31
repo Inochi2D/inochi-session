@@ -1,10 +1,17 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.plugins;
 public import session.plugins.plugin;
 import session.plugins.api;
+import inui.core.settings;
+import inui.core.path;
 import bindbc.lua;
 import lumars;
 import session.log;
-import inui.core.path;
 import std.file;
 import std.path;
 
@@ -12,8 +19,15 @@ private {
     bool couldLoadLua = true;
     LuaState* state;
     LuaTable apiTable;
+
+    struct PluginRunState {
+        bool isEnabled;
+    }
 }
 
+/**
+    Gets the plugin state
+*/
 Plugin[] insPlugins;
 
 /**
@@ -39,11 +53,29 @@ void insLuaInit() {
     insEnumeratePlugins();
 }
 
+void insLuaUnload() {
+    lua_close(state.handle());
+    destroy(state);
+}
+
+void insSavePluginState() {
+    PluginRunState[string] states;
+    foreach(plugin; insPlugins) {
+        states[plugin.getInfo().pluginId] = PluginRunState(
+            plugin.isEnabled
+        );
+    }
+
+    inSettingsSet("pluginStates", states);
+}
+
 void insEnumeratePlugins() {
     insPlugins.length = 0;
 
     string pluginsDir = inGetAppCustomPath("plugins");
     insLogInfo("Scanning plugins at %s...", pluginsDir);
+
+    PluginRunState[string] states = inSettingsGet!(PluginRunState[string])("pluginStates");
 
     foreach(pluginDir; dirEntries(pluginsDir, SpanMode.shallow, false)) {
         string initFile = buildPath(pluginDir, "init.lua");
@@ -57,6 +89,7 @@ void insEnumeratePlugins() {
             state.doString("return "~readText(infoFile));
             try {
 
+
                 // Get plugin information
                 PluginInfo info = state.get!PluginInfo(-1);
                 state.pop(2);
@@ -65,7 +98,8 @@ void insEnumeratePlugins() {
                 info.pluginId = pluginDirName;
 
                 // Add plugin
-                insPlugins ~= new Plugin(info, pluginDir, state, apiTable);
+                bool shouldEnable = info.pluginId in states ? states[info.pluginId].isEnabled : true;
+                insPlugins ~= new Plugin(info, pluginDir, state, apiTable, shouldEnable);
             } catch (Exception ex) {
                 insLogErr("Plugin %s failed to initialize, %s.", pluginDirName, ex.msg);
             }
@@ -73,6 +107,8 @@ void insEnumeratePlugins() {
             insLogWarn("Invalid plugin %s...", pluginDirName);
         }
     }
+
+    insSavePluginState();
 }
 
 /**
@@ -80,4 +116,24 @@ void insEnumeratePlugins() {
 */
 bool insHasLua() {
     return couldLoadLua;
+}
+
+/**
+    Gets string of value
+*/
+string luaValueToString(ref LuaValue value) {
+    import std.conv : text;
+    import std.format : format;
+    switch(value.kind) {
+        case LuaValue.Kind.nil:
+            return "nil";
+        case LuaValue.Kind.number:
+            return (cast(double)value).text;
+        case LuaValue.Kind.text:
+            return (cast(string)value);
+        case LuaValue.Kind.boolean:
+            return (cast(bool)value).text;
+        default:
+            return "(%s)".format(value.kind);
+    }
 }

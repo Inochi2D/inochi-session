@@ -1,3 +1,9 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.tracking.expr;
 import session.tracking;
 import session.scene;
@@ -5,7 +11,7 @@ import session.log;
 import ft;
 import inochi2d;
 import lumars;
-import bindbc.lua : luaL_newstate, luaopen_math;
+import bindbc.lua : luaL_newstate, luaopen_math, lua_close;
 import std.format;
 import i18n;
 
@@ -78,9 +84,12 @@ void insInitExpressions() {
     state.register!((float a, float b, float  val) { return lerp(a, b, val); })("lerp");
     state.register!((float x, float tx, float y, float ty, float val) { return hermite(x, tx, y, ty, val); })("cubic");
     state.register!((float y, float x) { return atan2(y, x); })("atan2");
+    state.register!((float value) { return degrees(value); })("degrees");
+    state.register!((float value) { return radians(value); })("radians");
 }
 
 void insCleanupExpressions() {
+    lua_close(state.handle());
     destroy(state);
 }
 
@@ -197,6 +206,6 @@ public:
     }
 }
 
-string insExpressionGenerateSignature(Parameter param, int axis) {
-    return "p%s_%s".format(param.uuid, axis);
+string insExpressionGenerateSignature(uint uuid, int axis) {
+    return "p%s_%s".format(uuid, axis);
 }
