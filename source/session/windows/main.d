@@ -62,10 +62,10 @@ protected:
         if (!inInputIsInUI()) {
             if (inInputMouseDoubleClicked(MouseButton.Left)) this.showUI = !showUI;
             insInteractWithScene();
-        }
 
-        if (getDraggedFiles().length > 0) {
-            loadModels(getDraggedFiles());
+            if (getDraggedFiles().length > 0) {
+                loadModels(getDraggedFiles());
+            }
         }
 
         if (showUI) {
