@@ -15,11 +15,14 @@ import session.panels.tracking : insTrackingPanelRefresh;
 import session.log;
 import std.string;
 import session.plugins;
+import session.render.spritebatch;
+import bindbc.opengl;
 
 struct Scene {
     VirtualSpace space;
-
     SceneItem[] sceneItems;
+
+    Texture backgroundImage;
 }
 
 struct SceneItem {
@@ -117,7 +120,10 @@ void insSceneAddPuppet(string path, Puppet puppet) {
 
 void insSceneInit() {
     insScene.space = insLoadVSpace();
-    trashcanTexture = new Texture(ShallowTexture(cast(ubyte[])import("tex/ui-delete.png")));
+    auto tex = ShallowTexture(cast(ubyte[])import("tex/ui-delete.png"));
+    inTexPremultiply(tex.data);
+    trashcanTexture = new Texture(tex);
+    AppBatch = new SpriteBatch();
 }
 
 void insSceneCleanup() {
@@ -139,16 +145,19 @@ void insUpdateScene() {
     // Update virtual spaces
     insScene.space.update();
 
-    inBeginScene();
+    // Render the waifu trashcan outside of the main FB
+    glEnable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // Trashcan render variables
+    trashcanVisibility = dampen(trashcanVisibility, isDragDown ? 0.85 : 0, deltaTime(), 1);
+    {
         float trashcanScale = 1f;
         float sizeOffset = 0f;
-        vec2 centerOffset = inCamera.getCenterOffset;
-        vec2 trashcanPos = vec2(
-            (inCamera.position.x-centerOffset.x)+TRASHCAN_DISPLACEMENT,
-            (inCamera.position.y+centerOffset.y)-(trashcanSize+TRASHCAN_DISPLACEMENT)
-        );
+        int viewportWidth, viewportHeight;
+        inGetViewport(viewportWidth, viewportHeight);
+
 
         if (isMouseOverDelete) {
             float scalePercent = (sin(currentTime()*2)+1)/2;
@@ -156,18 +165,34 @@ void insUpdateScene() {
             sizeOffset = ((trashcanSize*trashcanScale)-trashcanSize)/2;
         }
 
-        // Draw trashcan
-        inDrawTextureAtRect(
-            trashcanTexture, 
+        AppBatch.draw(
+            trashcanTexture,
             rect(
-                trashcanPos.x-sizeOffset, 
-                trashcanPos.y-sizeOffset, 
+                TRASHCAN_DISPLACEMENT-sizeOffset, 
+                viewportHeight-(trashcanSize+TRASHCAN_DISPLACEMENT+sizeOffset),
                 trashcanSize*trashcanScale, 
                 trashcanSize*trashcanScale
-            ), 
-            rect(0, 0, 1, 1), 
-            trashcanVisibility
+            ),
+            rect.init,
+            vec2(0),
+            0,
+            SpriteFlip.None,
+            vec4(1, 1, 1, trashcanVisibility)
         );
+        AppBatch.flush();
+        glFlush();
+    }
+    glDisable(GL_BLEND);
+
+    inBeginScene();
+
+        if (insScene.backgroundImage) {
+            AppBatch.draw(
+                insScene.backgroundImage,
+                rect(0, 0, insScene.backgroundImage.width, insScene.backgroundImage.height)
+            );
+            AppBatch.flush();
+        }
         
         // Update plugins
         foreach(ref plugin; insPlugins) {
@@ -194,7 +219,6 @@ void insUpdateScene() {
         }
     inEndScene();
 
-    trashcanVisibility = dampen(trashcanVisibility, isDragDown ? 0.85 : 0, deltaTime(), 1);
 }
 
 /**
@@ -219,7 +243,7 @@ private {
 
     enum TRASHCAN_DISPLACEMENT = 16;
     float trashcanVisibility = 0;
-    float trashcanSize = 128;
+    float trashcanSize = 64;
     Texture trashcanTexture;
     rect deleteArea;
     bool isMouseOverDelete;
@@ -229,8 +253,7 @@ void insInteractWithScene() {
     int width, height;
     inGetViewport(width, height);
     
-    float trashcanHalfSize = trashcanSize/2;
-    deleteArea = rect(0, height-(TRASHCAN_DISPLACEMENT+trashcanHalfSize), trashcanHalfSize+TRASHCAN_DISPLACEMENT, trashcanHalfSize+TRASHCAN_DISPLACEMENT);
+    deleteArea = rect(0, height-(TRASHCAN_DISPLACEMENT+trashcanSize), trashcanSize+TRASHCAN_DISPLACEMENT, trashcanSize+TRASHCAN_DISPLACEMENT);
     isMouseOverDelete = deleteArea.intersects(inInputMousePosition());
 
     import std.stdio : writeln;
@@ -406,5 +429,5 @@ void insInteractWithScene() {
                 inGetDeltaTime()
             );
         }
-    }
+    } else isDragDown = false;
 }
