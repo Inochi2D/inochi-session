@@ -1,3 +1,9 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.windows.spaceedit;
 import session.scene;
 import session.tracking.vspace;
@@ -83,7 +89,7 @@ private:
         if (uiImBeginComboBox(adaptorName)) {
             if (uiImSelectable("VTubeStudio")) {
                 if (source) source.stop();
-
+                
                 source = new VTSAdaptor();
                 editingZone.sources[i] = source;
                 refreshOptionsList();
