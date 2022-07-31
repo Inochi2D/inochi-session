@@ -204,7 +204,7 @@ public:
             foreach(i, ref zone; zones) {
                 if (zone.sources.length == 0) continue;
 
-                if (zone.sources[0].isReceivingData) {
+                if (zone.sources[0] && zone.sources[0].isReceivingData) {
                     activeZone = i;
                 }
             }
