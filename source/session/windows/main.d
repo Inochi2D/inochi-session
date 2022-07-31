@@ -183,11 +183,11 @@ public:
         // Preload any specified models
         loadModels(args);
 
-        uiImDialog(
-            __("Inochi Session"), 
-            _("THIS IS BETA SOFTWARE\n\nThis software is incomplete, please lower your expectations."), 
-            DialogLevel.Warning
-        );
+        // uiImDialog(
+        //     __("Inochi Session"), 
+        //     _("THIS IS BETA SOFTWARE\n\nThis software is incomplete, please lower your expectations."), 
+        //     DialogLevel.Warning
+        // );
 
         inGetCamera().scale = vec2(0.5);
 
