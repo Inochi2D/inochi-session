@@ -20,6 +20,7 @@ import ft;
 import i18n;
 import inui.utils.link;
 import std.format;
+import session.ver;
 
 private {
     struct InochiWindowSettings {
@@ -133,6 +134,8 @@ protected:
                         uiOpenLink("https://github.com/Inochi2D/inochi-session/wiki");
                     }
                     if (uiImMenuItem(__("About"))) {
+                        uiImDialog(__("Inochi Session"),
+                        "Inochi Session %s\n(Inochi2D %s)\n\nMade with <3\nby Luna the Foxgirl and Inochi2D Contributors.".format(INS_VERSION, IN_VERSION), DialogLevel.Info);
                     }
                     
                     uiImEndMenu();
