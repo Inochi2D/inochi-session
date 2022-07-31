@@ -206,6 +206,6 @@ public:
     }
 }
 
-string insExpressionGenerateSignature(Parameter param, int axis) {
-    return "p%s_%s".format(param.uuid, axis);
+string insExpressionGenerateSignature(uint uuid, int axis) {
+    return "p%s_%s".format(uuid, axis);
 }

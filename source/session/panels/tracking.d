@@ -1,3 +1,9 @@
+/*
+    Copyright © 2022, Inochi2D Project
+    Distributed under the 2-Clause BSD License, see LICENSE file.
+    
+    Authors: Luna Nielsen
+*/
 module session.panels.tracking;
 import session.tracking.expr;
 import inui.panel;
@@ -103,7 +109,7 @@ private:
                 }
 
                 if (uiImMenuItem(__("Expression Binding"))) {
-                    binding.expr = new Expression(insExpressionGenerateSignature(binding.param, binding.axis), "");
+                    binding.expr = new Expression(insExpressionGenerateSignature(cast(int)binding.hashOf(), binding.axis), "");
                     binding.type = BindingType.ExpressionBinding;
                 }
 

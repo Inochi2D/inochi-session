@@ -238,7 +238,7 @@ public:
                 string exprStr;
                 data["signature"].deserializeValue(exprSig);
                 data["expression"].deserializeValue(exprStr);
-                expr = new Expression(exprSig, exprStr);
+                expr = new Expression(insExpressionGenerateSignature(cast(int)this.hashOf(), axis), exprStr);
                 break;
             default: break;
         }
