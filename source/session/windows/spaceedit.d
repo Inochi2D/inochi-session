@@ -172,9 +172,16 @@ public:
                                             
                                             adaptorSelect(i, source, adaptorName);
 
+                                            igNewLine();
+
                                             foreach(option; source.getOptionNames()) {
+                                                
+                                                // Skip options which shouldn't be shown
                                                 if (option == "appName") continue;
+                                                if (option == "address") continue;
+
                                                 if (option !in options[source]) options[source][option] = "";
+                                                uiImLabel(option);
                                                 uiImInputText(option, avail.x/2, options[source][option]);
                                             }
 
