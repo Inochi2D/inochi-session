@@ -246,10 +246,13 @@ public:
     }
 
     /**
-        Finalizes the tracking binding
+        Finalizes the tracking binding, if possible.
+        Returns true on success.
+        Returns false if the parameter does not exist.
     */
-    void finalize(ref Puppet puppet) {
+    bool finalize(ref Puppet puppet) {
         param = puppet.findParameter(paramUUID);
+        return param !is null;
     }
 
     /**

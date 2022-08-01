@@ -38,10 +38,15 @@ struct SceneItem {
 
     bool tryLoadBindings() {
         if ("com.inochi2d.inochi-session.bindings" in puppet.extData) {
-            bindings = deserialize!(TrackingBinding[])(cast(string)puppet.extData["com.inochi2d.inochi-session.bindings"]);
+            auto preBindings = deserialize!(TrackingBinding[])(cast(string)puppet.extData["com.inochi2d.inochi-session.bindings"]);
 
             // finalize the loading
-            foreach(ref binding; bindings) binding.finalize(puppet);            
+            bindings = [];
+            foreach(ref binding; preBindings) {
+                if (binding.finalize(puppet)) {
+                    bindings ~= binding;
+                }
+            }
             return true;
         }
         return false;
@@ -62,7 +67,7 @@ struct SceneItem {
         }
 
         // Note existing bindings
-        foreach(binding; bindings) {
+        foreach(ref binding; bindings) {
             srcDst ~= LinkSrcDst(binding.param, binding.axis);
         }
 
