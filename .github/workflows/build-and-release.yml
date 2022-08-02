@@ -22,22 +22,23 @@ jobs:
       with:
         compiler: ldc-latest
   
-    - name: "Prepare for AppImage packing"
+    - name: 'Prepare for AppImage packing'
       run: |
         sudo apt update
         sudo apt install -y python3-pip python3-setuptools patchelf desktop-file-utils libgdk-pixbuf2.0-dev fakeroot strace fuse
         sudo wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O /usr/local/bin/appimagetool.AppImage
         sudo chmod +x /usr/local/bin/appimagetool.AppImage
     
-    - name: "Get build dependencies"
+    - name: 'Get build dependencies'
       run: |
         sudo apt install libsdl2-dev libfreetype6-dev gettext
+    
     - name: 'Generate i18n'
       run: |
         sudo chmod +x gentl.sh
         ./gentl.sh
       
-    - name: "Clone dependencies & set versions"
+    - name: 'Clone dependencies & set versions'
       run: |
         git clone https://github.com/Inochi2D/bindbc-imgui.git --recurse-submodules
         git clone https://github.com/Inochi2D/inochi2d.git
@@ -61,7 +62,7 @@ jobs:
         sudo chmod +x BuildAppImage.sh
         ./BuildAppImage.sh
           
-    - name: Archive Zip
+    - name: 'Archive Zip'
       uses: thedoctor0/zip-release@main
       with:
         type: 'zip'
@@ -75,11 +76,56 @@ jobs:
       with:
           files: 'build/inochi-session-x86_64.AppImage'
 
-    - name: 'Release ZIP'
+  linux-zip:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: dlang-community/setup-dlang@4c99aa991ce7d19dd3064de0a4f2f6b2f152e2d7
+      with:
+        compiler: ldc-latest
+    
+    - name: 'Get build dependencies'
+      run: |
+        sudo apt update
+        sudo apt install libsdl2-dev libfreetype6-dev gettext
+
+    - name: 'Generate i18n'
+      run: |
+        sudo chmod +x gentl.sh
+        ./gentl.sh
+
+    - name: 'Clone dependencies & set versions'
+      run: |
+        git clone https://github.com/Inochi2D/bindbc-imgui.git --recurse-submodules
+        git clone https://github.com/Inochi2D/inochi2d.git
+        git clone https://github.com/Inochi2D/facetrack-d.git
+        git clone https://github.com/KitsunebiGames/i18n.git
+        git clone https://github.com/Inochi2D/inui.git
+        dub add-local bindbc-imgui/ "0.7.0"
+        dub add-local inochi2d/ "0.7.2"
+        dub add-local facetrack-d/ "0.6.2"
+        dub add-local i18n/ "1.0.1"
+        dub add-local inui/ "1.0.0"
+
+    - name: 'Build Inochi Session'
+      run: |
+        # Build the project, with its main file included, without unittests
+        dub build --compiler=ldc2 --build=release --config=full
+          
+    - name: 'Archive Zip'
+      uses: thedoctor0/zip-release@main
+      with:
+        type: 'zip'
+        filename: 'inochi-session-linux-x86_64.zip'
+        directory: 'out/'
+        path: '*'
+
+    - name: 'Release'
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-          files: 'out/inochi-session-linux-x86_64.zip'
+          files: out/inochi-session-linux-x86_64.zip
 
   windows-zip:
     runs-on: windows-latest
@@ -90,7 +136,7 @@ jobs:
       with:
         compiler: ldc-latest
       
-    - name: "Clone dependencies & set versions"
+    - name: 'Clone dependencies & set versions'
       run: |
         git clone https://github.com/Inochi2D/bindbc-imgui.git --recurse-submodules
         git clone https://github.com/Inochi2D/inochi2d.git
@@ -118,7 +164,7 @@ jobs:
           Invoke-VSDevEnvironment
           dub build --compiler=ldc2 --build=release --config=win32-full
           
-    - name: Archive Zip
+    - name: 'Archive Zip'
       uses: thedoctor0/zip-release@main
       with:
         type: 'zip'
@@ -126,7 +172,7 @@ jobs:
         directory: 'out/'
         path: '*'
 
-    - name: Release
+    - name: 'Release'
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
