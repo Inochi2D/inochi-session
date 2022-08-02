@@ -26,6 +26,9 @@ dflags "-mscrtlib=msvcrt" platform="windows-ldc"    // Use the dynamic CRT on Wi
 //dflags "-flto=full" platform="ldc"		            // Enable Link Time Optimizations (LTO)
 //dflags "-link-defaultlib-shared" platform="ldc"	    // Use the shared D runtime
 
+// Uncomment following lines to enable JINS MEME Logger module.
+//versions "JML"
+//subConfiguration "facetrack-d" "jml"
 
 //
 // CONFIGURATIONS

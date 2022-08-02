@@ -108,6 +108,15 @@ private:
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
+            version (JML) {
+                if (uiImSelectable("JINS MEME Logger")) {
+                    if (source) source.stop();
+
+                    source = new JMLAdaptor();
+                    editingZone.sources[i] = source;
+                    refreshOptionsList();
+                }
+            }
             uiImEndComboBox();
         }
     }
