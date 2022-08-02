@@ -86,7 +86,7 @@ private:
     }
 
     void adaptorSelect(size_t i, ref Adaptor source, const(char)* adaptorName) {
-        if (uiImBeginComboBox(adaptorName)) {
+        if (uiImBeginComboBox("ADAPTOR_COMBO", adaptorName)) {
             if (uiImSelectable("VTubeStudio")) {
                 if (source) source.stop();
                 
