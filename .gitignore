@@ -19,3 +19,4 @@ out/
 dub.selections.json
 source/session/ver.d
 res/inochi-session.res
+version.txt

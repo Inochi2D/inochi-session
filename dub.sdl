@@ -18,7 +18,7 @@ copyFiles "res/licenses/*"
 versions "GL_32" "USE_SDL2" "USE_GL" "SDL_2020" "USE_OpenGL3"
 stringImportPaths "res"
 
-preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\""
+preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
 
 
 lflags "-rpath=$$ORIGIN" platform="linux"
