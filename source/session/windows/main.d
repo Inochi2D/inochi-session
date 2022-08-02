@@ -36,7 +36,7 @@ private {
 class InochiSessionWindow : InApplicationWindow {
 private:
     Adaptor adaptor;
-    Texture logo;
+    version (InBranding) Texture logo;
 
     void loadModels(string[] args) {
         foreach(arg; args) {
@@ -72,7 +72,9 @@ protected:
         if (showUI) {
             uiImBeginMainMenuBar();
                 vec2 avail = uiImAvailableSpace();
-                uiImImage(logo.getTextureId(), vec2(avail.y*2, avail.y*2));
+                version (InBranding) {
+                    uiImImage(logo.getTextureId(), vec2(avail.y*2, avail.y*2));
+                }
 
                 if (uiImBeginMenu(__("File"))) {
 
@@ -194,7 +196,8 @@ public:
 
         inGetCamera().scale = vec2(0.5);
 
-        logo = new Texture(ShallowTexture(cast(ubyte[])import("tex/logo.png")));
-
+        version (InBranding) {
+            logo = new Texture(ShallowTexture(cast(ubyte[])import("tex/logo.png")));
+        }
     }
 }
