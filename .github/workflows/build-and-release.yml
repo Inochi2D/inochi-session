@@ -83,6 +83,7 @@ jobs:
         CHANNEL: linux
         ITCH_GAME: inochi-session
         ITCH_USER: LunaFoxgirlVT
+        VERSION_FILE: version.txt
         PACKAGE: 'build/inochi-session-x86_64.AppImage'
 
   linux-zip:
@@ -194,4 +195,5 @@ jobs:
         CHANNEL: windows
         ITCH_GAME: inochi-session
         ITCH_USER: LunaFoxgirlVT
+        VERSION_FILE: version.txt
         PACKAGE: 'out/inochi-session-win32-x86_64.zip'
