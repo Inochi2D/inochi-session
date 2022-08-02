@@ -159,7 +159,7 @@ private:
             binding.sourceName = null;
         }
 
-        if (uiImBeginComboBox(hasTrackingSrc ? binding.sourceDisplayName.toStringz : __("Not tracked"))) {
+        if (uiImBeginComboBox("SELECTION_COMBO", hasTrackingSrc ? binding.sourceDisplayName.toStringz : __("Not tracked"))) {
             if (uiImInputText("###FILTER", uiImAvailableSpace().x, trackingFilter)) {
                 trackingFilter = trackingFilter.toLower();
             }

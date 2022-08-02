@@ -38,31 +38,37 @@ struct SceneItem {
 
     bool tryLoadBindings() {
         if ("com.inochi2d.inochi-session.bindings" in puppet.extData) {
-            bindings = deserialize!(TrackingBinding[])(cast(string)puppet.extData["com.inochi2d.inochi-session.bindings"]);
+            auto preBindings = deserialize!(TrackingBinding[])(cast(string)puppet.extData["com.inochi2d.inochi-session.bindings"]);
 
             // finalize the loading
-            foreach(ref binding; bindings) binding.finalize(puppet);            
+            bindings = [];
+            foreach(ref binding; preBindings) {
+                if (binding.finalize(puppet)) {
+                    bindings ~= binding;
+                }
+            }
             return true;
         }
         return false;
     }
 
     void genBindings() {
-        // Reset bindings
-        bindings.length = 0;
-
         struct LinkSrcDst {
-            Parameter src;
             Parameter dst;
-            int inAxis;
             int outAxis;
         }
         LinkSrcDst[] srcDst;
 
+        // Note down link targets
         foreach(param; puppet.parameters) {
             foreach(ref ParamLink link; param.links) {
-                srcDst ~= LinkSrcDst(param, link.link, cast(int)link.outAxis);
+                srcDst ~= LinkSrcDst(link.link, cast(int)link.outAxis);
             }
+        }
+
+        // Note existing bindings
+        foreach(ref binding; bindings) {
+            srcDst ~= LinkSrcDst(binding.param, binding.axis);
         }
 
         bool isParamAxisLinked(Parameter dst, int axis) {
@@ -113,8 +119,10 @@ void insSceneAddPuppet(string path, Puppet puppet) {
     item.filePath = path;
     item.puppet = puppet;
     if (!item.tryLoadBindings()) {
-        item.genBindings();
+        // Reset bindings
+        item.bindings.length = 0;
     }
+    item.genBindings();
 
     insScene.sceneItems ~= item;
 }
