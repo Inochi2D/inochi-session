@@ -76,6 +76,15 @@ jobs:
       with:
           files: 'build/inochi-session-x86_64.AppImage'
 
+    - name: 'Publish to itch'
+      uses: manleydev/butler-publish-itchio-action@master
+      env:
+        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+        CHANNEL: linux
+        ITCH_GAME: inochi-session
+        ITCH_USER: LunaFoxgirlVT
+        PACKAGE: 'build/inochi-session-x86_64.AppImage'
+
   linux-zip:
     runs-on: ubuntu-18.04
 
@@ -177,3 +186,12 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
           files: out/inochi-session-win32-x86_64.zip
+    
+    - name: 'Publish to itch'
+      uses: manleydev/butler-publish-itchio-action@master
+      env:
+        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+        CHANNEL: windows
+        ITCH_GAME: inochi-session
+        ITCH_USER: LunaFoxgirlVT
+        PACKAGE: 'out/inochi-session-win32-x86_64.zip'
