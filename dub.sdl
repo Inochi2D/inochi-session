@@ -4,13 +4,13 @@ authors "Inochi2D Project"
 copyright "Copyright © 2021, Inochi2D Project"
 license "BSD 2-clause"
 dependency "tinyfiledialogs" version="~>0.10.1"
-dependency "facetrack-d" version="~>0.6.2"
-dependency "bindbc-imgui" version="~>0.7.0"
+dependency "facetrack-d" version="~>1.0.0"
+dependency "bindbc-imgui" version="~>1.0.0"
 dependency "inui" version="~>1.0.0"
 dependency "lumars" version="~>1.4.1"
 dependency "bindbc-sdl" version="~>1.1.2"
 dependency "i18n-d" version="~>1.0.1"
-dependency "inochi2d" version="~>0.7.2"
+dependency "inochi2d" version="~>1.0.0"
 targetPath "out/"
 workingDirectory "out/"
 copyFiles "res/licenses/*"
@@ -27,8 +27,8 @@ dflags "-mscrtlib=msvcrt" platform="windows-ldc"    // Use the dynamic CRT on Wi
 //dflags "-link-defaultlib-shared" platform="ldc"	    // Use the shared D runtime
 
 // Uncomment following lines to enable JINS MEME Logger module.
-//versions "JML"
-//subConfiguration "facetrack-d" "jml"
+versions "JML"
+subConfiguration "facetrack-d" "jml"
 
 //
 // CONFIGURATIONS
