@@ -17,6 +17,7 @@ import session.ver;
 import session.scene;
 import session.framesend;
 import session.tracking.expr;
+import core.stdc.stdlib;
 
 
 void main(string[] args) {
@@ -55,4 +56,5 @@ void main(string[] args) {
     insCleanupFrameSending();
     insSceneCleanup();
     inSettingsSave();
+    exit(0);
 }

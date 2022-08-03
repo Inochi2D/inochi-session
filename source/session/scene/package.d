@@ -157,9 +157,9 @@ void insSceneCleanup() {
             if (source.isRunning()) {
                 source.stop();
             }
-            destroy(source);
         }
     }
+    insScene.space = null;
 }
 
 void insUpdateScene() {
