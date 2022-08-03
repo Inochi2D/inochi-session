@@ -107,6 +107,19 @@ protected:
                     uiImEndMenu();
                 }
 
+                if (uiImBeginMenu(__("Tools"))) {
+
+                    // Resets the tracking out range to be in the coordinate space of min..max
+                    if (uiImMenuItem(__("Reset Tracking Out"))) {
+                        if (insSceneSelectedSceneItem()) {
+                            foreach(ref binding; insSceneSelectedSceneItem.bindings) {
+                                binding.outRangeToDefault();
+                            }
+                        }
+                    }
+                    uiImEndMenu();
+                }
+
                 if (uiImBeginMenu(__("Plugins"))) {
 
                     uiImLabelColored(_("Plugins"), vec4(0.8, 0.3, 0.3, 1));
@@ -125,15 +138,6 @@ protected:
                     uiImSeperator();
                     if (uiImMenuItem(__("Rescan Plugins"))) {
                         insEnumeratePlugins();
-                    }
-
-                    // Resets the tracking out range to be in the coordinate space of min..max
-                    if (uiImMenuItem(__("Reset Tracking Out"))) {
-                        if (insSceneSelectedSceneItem()) {
-                            foreach(ref binding; insSceneSelectedSceneItem.bindings) {
-                                binding.outRangeToDefault();
-                            }
-                        }
                     }
 
                     uiImEndMenu();
