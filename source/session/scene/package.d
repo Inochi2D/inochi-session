@@ -293,6 +293,10 @@ private {
 }
 
 void insInteractWithScene() {
+
+    // Skip doing stuff is mouse drag begin in the UI
+    if (inInputMouseDownBeganInUI(MouseButton.Left)) return;
+
     int width, height;
     inGetViewport(width, height);
     
