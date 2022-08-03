@@ -95,7 +95,7 @@ struct SceneItem {
                 binding.axis = i;
                 binding.type = BindingType.RatioBinding;
                 binding.inRange = vec2(0, 1);
-                binding.outRange = vec2(0, 1);
+                binding.outRangeToDefault();
 
                 // binding name assignment
                 if (param.isVec2) binding.name = "%s (%s)".format(param.name, i == 0 ? "X" : "Y");

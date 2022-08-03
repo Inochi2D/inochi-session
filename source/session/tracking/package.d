@@ -246,6 +246,13 @@ public:
     }
 
     /**
+        Sets the parameter out range to the default for the axis
+    */
+    void outRangeToDefault() {
+        outRange = vec2(param.min.vector[axis], param.max.vector[axis]);
+    }
+
+    /**
         Finalizes the tracking binding, if possible.
         Returns true on success.
         Returns false if the parameter does not exist.
@@ -326,7 +333,7 @@ public:
                 
                 // Calculate the output ratio (whatever outRange is)
                 outVal = unmapValue(inVal, outRange.x, outRange.y);
-                param.value.vector[axis] = param.unmapAxis(axis, outVal);
+                param.value.vector[axis] = outVal;
                 break;
 
             case BindingType.ExpressionBinding:
