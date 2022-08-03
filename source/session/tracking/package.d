@@ -224,11 +224,11 @@ public:
         data["sourceType"].deserializeValue(sourceType);
         data["bindingType"].deserializeValue(type);
         data["param"].deserializeValue(paramUUID);
+        if (!data["axis"].isEmpty) data["axis"].deserializeValue(axis);
         if (!data["dampenLevel"].isEmpty) data["dampenLevel"].deserializeValue(dampenLevel);
 
         switch(type) {
             case BindingType.RatioBinding:
-                data["axis"].deserializeValue(axis);
                 data["inverse"].deserializeValue(inverse);
                 inRange.deserialize(data["inRange"]);
                 outRange.deserialize(data["outRange"]);
