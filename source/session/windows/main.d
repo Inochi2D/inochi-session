@@ -127,6 +127,15 @@ protected:
                         insEnumeratePlugins();
                     }
 
+                    // Resets the tracking out range to be in the coordinate space of min..max
+                    if (uiImMenuItem(__("Reset Tracking Out"))) {
+                        if (insSceneSelectedSceneItem()) {
+                            foreach(ref binding; insSceneSelectedSceneItem.bindings) {
+                                binding.outRangeToDefault();
+                            }
+                        }
+                    }
+
                     uiImEndMenu();
                 }
 
