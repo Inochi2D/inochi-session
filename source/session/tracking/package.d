@@ -344,11 +344,12 @@ public:
                     float src = expr.call();
                     if (!src.isFinite) break;
 
+                    // No dampen, or dampen
                     if (dampenLevel == 0) outVal = src;
                     else {
                         
-                        outVal = dampen(outVal, expr.call(), deltaTime(), cast(float)(11-dampenLevel));
-                        outVal = quantize(inVal, 0.0001);
+                        outVal = dampen(outVal, src, deltaTime(), cast(float)(11-dampenLevel));
+                        outVal = quantize(outVal, 0.0001);
                     }
 
                     param.value.vector[axis] = param.unmapAxis(axis, outVal);
