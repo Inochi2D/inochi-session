@@ -32,8 +32,21 @@ struct SceneItem {
     TrackingBinding[] bindings;
 
     void saveBindings() {
+        // HACK: (Luna) I should add a function that directly modifies the EXT_SECT instead of these shenannigans.
+        vec3 tr = puppet.root.localTransform.translation;
+        vec3 rt = puppet.root.localTransform.rotation;
+        vec2 sc = puppet.root.localTransform.scale;
+
+        puppet.root.localTransform.translation = vec3(0, 0, 0);
+        puppet.root.localTransform.rotation = vec3(0, 0, 0);
+        puppet.root.localTransform.scale = vec2(1, 1);
         puppet.extData["com.inochi2d.inochi-session.bindings"] = cast(ubyte[])serializeToJson(bindings);
+
         inWriteINPPuppet(puppet, filePath);
+
+        puppet.root.localTransform.translation = tr;
+        puppet.root.localTransform.rotation = rt;
+        puppet.root.localTransform.scale = sc;
     }
 
     bool tryLoadBindings() {
