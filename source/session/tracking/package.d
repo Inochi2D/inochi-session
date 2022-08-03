@@ -14,6 +14,7 @@ import fghj;
 import i18n;
 import std.format;
 import std.math.rounding : quantize;
+import std.math : isFinite;
 
 /**
     Binding Type
@@ -338,7 +339,12 @@ public:
 
             case BindingType.ExpressionBinding:
                 if (expr) {
-                    if (dampenLevel == 0) outVal = expr.call();
+
+                    // Skip NaN values
+                    float src = expr.call();
+                    if (!src.isFinite) break;
+
+                    if (dampenLevel == 0) outVal = src;
                     else {
                         
                         outVal = dampen(outVal, expr.call(), deltaTime(), cast(float)(11-dampenLevel));
