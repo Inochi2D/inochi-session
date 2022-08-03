@@ -313,7 +313,7 @@ void insInteractWithScene() {
         )
     );
 
-    if (inInputMouseDown(MouseButton.Left)) {
+    if (!inInputWasMouseDown(MouseButton.Left) && inInputMouseDown(MouseButton.Left)) {
 
         // One shot check if there's a puppet to drag under the cursor
         if (!hasDonePuppetSelect) {
@@ -353,7 +353,7 @@ void insInteractWithScene() {
             inSetUpdateBounds(false);
             
         }
-    } else if (hasDonePuppetSelect) {
+    } else if (!inInputMouseDown(MouseButton.Left) && hasDonePuppetSelect) {
         hasDonePuppetSelect = false;
     }
 
