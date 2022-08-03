@@ -160,6 +160,11 @@ public:
 
                     uiImIndent();
                         foreach(i; 0..editingZone.sources.length) {
+                            // Deleting a source causes some confusion here.
+                            if (i >= editingZone.sources.length) {
+                                continue;
+                            }
+
                             uiImPush(cast(int)i);
                                 auto source = editingZone.sources[i];
                                 const(char)* adaptorName = source is null ? __("Unset") : source.getAdaptorName().toStringz;
