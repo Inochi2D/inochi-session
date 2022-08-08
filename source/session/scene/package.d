@@ -33,7 +33,7 @@ struct SceneItem {
 
     void saveBindings() {
         puppet.extData["com.inochi2d.inochi-session.bindings"] = cast(ubyte[])serializeToJson(bindings);
-        inWriteINPPuppet(puppet, filePath);
+        inWriteINPExtensions(puppet, filePath);
     }
 
     bool tryLoadBindings() {
@@ -95,7 +95,7 @@ struct SceneItem {
                 binding.axis = i;
                 binding.type = BindingType.RatioBinding;
                 binding.inRange = vec2(0, 1);
-                binding.outRange = vec2(0, 1);
+                binding.outRangeToDefault();
 
                 // binding name assignment
                 if (param.isVec2) binding.name = "%s (%s)".format(param.name, i == 0 ? "X" : "Y");
@@ -293,6 +293,10 @@ private {
 }
 
 void insInteractWithScene() {
+
+    // Skip doing stuff is mouse drag begin in the UI
+    if (inInputMouseDownBeganInUI(MouseButton.Left)) return;
+
     int width, height;
     inGetViewport(width, height);
     
@@ -313,7 +317,7 @@ void insInteractWithScene() {
         )
     );
 
-    if (inInputMouseDown(MouseButton.Left)) {
+    if (!inInputWasMouseDown(MouseButton.Left) && inInputMouseDown(MouseButton.Left)) {
 
         // One shot check if there's a puppet to drag under the cursor
         if (!hasDonePuppetSelect) {
@@ -353,7 +357,7 @@ void insInteractWithScene() {
             inSetUpdateBounds(false);
             
         }
-    } else if (hasDonePuppetSelect) {
+    } else if (!inInputMouseDown(MouseButton.Left) && hasDonePuppetSelect) {
         hasDonePuppetSelect = false;
     }
 

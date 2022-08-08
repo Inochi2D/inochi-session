@@ -14,6 +14,7 @@ import fghj;
 import i18n;
 import std.format;
 import std.math.rounding : quantize;
+import std.math : isFinite;
 
 /**
     Binding Type
@@ -223,11 +224,11 @@ public:
         data["sourceType"].deserializeValue(sourceType);
         data["bindingType"].deserializeValue(type);
         data["param"].deserializeValue(paramUUID);
+        if (!data["axis"].isEmpty) data["axis"].deserializeValue(axis);
         if (!data["dampenLevel"].isEmpty) data["dampenLevel"].deserializeValue(dampenLevel);
 
         switch(type) {
             case BindingType.RatioBinding:
-                data["axis"].deserializeValue(axis);
                 data["inverse"].deserializeValue(inverse);
                 inRange.deserialize(data["inRange"]);
                 outRange.deserialize(data["outRange"]);
@@ -243,6 +244,13 @@ public:
         this.createSourceDisplayName();
         
         return null;
+    }
+
+    /**
+        Sets the parameter out range to the default for the axis
+    */
+    void outRangeToDefault() {
+        outRange = vec2(param.min.vector[axis], param.max.vector[axis]);
     }
 
     /**
@@ -326,16 +334,22 @@ public:
                 
                 // Calculate the output ratio (whatever outRange is)
                 outVal = unmapValue(inVal, outRange.x, outRange.y);
-                param.value.vector[axis] = param.unmapAxis(axis, outVal);
+                param.value.vector[axis] = outVal;
                 break;
 
             case BindingType.ExpressionBinding:
                 if (expr) {
-                    if (dampenLevel == 0) outVal = expr.call();
+
+                    // Skip NaN values
+                    float src = expr.call();
+                    if (!src.isFinite) break;
+
+                    // No dampen, or dampen
+                    if (dampenLevel == 0) outVal = src;
                     else {
                         
-                        outVal = dampen(outVal, expr.call(), deltaTime(), cast(float)(11-dampenLevel));
-                        outVal = quantize(inVal, 0.0001);
+                        outVal = dampen(outVal, src, deltaTime(), cast(float)(11-dampenLevel));
+                        outVal = quantize(outVal, 0.0001);
                     }
 
                     param.value.vector[axis] = param.unmapAxis(axis, outVal);

@@ -17,12 +17,15 @@ import session.ver;
 import session.scene;
 import session.framesend;
 import session.tracking.expr;
+import std.process;
 import core.stdc.stdlib;
-
 
 void main(string[] args) {
     insLogInfo("Inochi Session %s, args=%s", INS_VERSION, args[1..$]);
     
+    // Force X11 as the video driver on Linux
+    version(linux) environment["SDL_VIDEODRIVER"] = "x11";
+
     // Set the application info
     InApplication appInfo = InApplication(
         "net.inochi2d.InochiSession",   // FQDN
