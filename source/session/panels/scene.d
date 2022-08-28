@@ -46,7 +46,7 @@ private:
     void setBGColor(vec4 color) {
         clearColor = vec4(color.r, color.g, color.b, color.a);
         inSetClearColor(color.r, color.g, color.b, color.a);
-        inSettingsSet!(float[4])("bgColor", [color.r, color.g, color.b, color.a]);
+        inSettingsSet!(float[4])("bgColor", color.vector);
     }
 
 protected:
@@ -60,7 +60,9 @@ protected:
 
         
         uiImIndent();
-            uiImColorButton3("###LIGHT_COLOR", &inSceneAmbientLight.vector);
+            if (uiImColorButton3("###LIGHT_COLOR", &inSceneAmbientLight.vector)) {
+                inSettingsSet!(float[3])("ambientLight", inSceneAmbientLight.vector);
+            }
             uiImUnindent();
         uiImUnindent();
 
