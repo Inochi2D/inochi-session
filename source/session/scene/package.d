@@ -138,7 +138,9 @@ void insSceneInit() {
     if (insScene.bgPath) {
         try {
             tex = ShallowTexture(insScene.bgPath);
-            inTexPremultiply(tex.data);
+            if (tex.channels == 4) {
+                inTexPremultiply(tex.data);
+            }
             insScene.backgroundImage = new Texture(tex);
         } catch (Exception ex) {
             insLogErr("%s", ex.msg);
@@ -261,6 +263,7 @@ void insUpdateScene() {
             }
         }
     inEndScene();
+    inPostProcessScene();
 
 }
 

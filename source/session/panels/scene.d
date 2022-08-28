@@ -33,7 +33,9 @@ private:
         try {
             insScene.bgPath = file;
             ShallowTexture tex = ShallowTexture(file);
-            inTexPremultiply(tex.data);
+            if (tex.channels == 4) {
+                inTexPremultiply(tex.data);
+            }
             insScene.backgroundImage = new Texture(tex);
             inSettingsSet("bgPath", insScene.bgPath);
         } catch (Exception ex) {
@@ -51,6 +53,16 @@ protected:
 
     override 
     void onUpdate() {
+
+        
+        uiImLabelColored(_("Lighting"), vec4(0.8, 0.3, 0.3, 1));
+        uiImSeperator();
+
+        
+        uiImIndent();
+            uiImColorButton3("###LIGHT_COLOR", &inSceneAmbientLight.vector);
+            uiImUnindent();
+        uiImUnindent();
 
         uiImLabelColored(_("Background Color"), vec4(0.8, 0.3, 0.3, 1));
         uiImSeperator();

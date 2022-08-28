@@ -48,6 +48,7 @@ void main(string[] args) {
     
     insSceneInit();
     insInitFrameSending();
+    inPostProcessingAddBasicLighting();
 
     // Draw window
     while(window.isAlive) {
