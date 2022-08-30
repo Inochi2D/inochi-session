@@ -55,6 +55,16 @@ protected:
     void onUpdate() {
 
         
+        uiImLabelColored(_("Post Processing"), vec4(0.8, 0.3, 0.3, 1));
+        uiImSeperator();
+
+        
+        uiImIndent();
+            if (uiImCheckbox(__("Enabled###POST_PROCESSING"), insScene.shouldPostProcess)) {
+                inSettingsSet!(bool)("shouldPostProcess", insScene.shouldPostProcess);
+            }
+        uiImUnindent();
+
         uiImLabelColored(_("Lighting"), vec4(0.8, 0.3, 0.3, 1));
         uiImSeperator();
 
@@ -63,7 +73,6 @@ protected:
             if (uiImColorButton3("###LIGHT_COLOR", &inSceneAmbientLight.vector)) {
                 inSettingsSet!(float[3])("ambientLight", inSceneAmbientLight.vector);
             }
-            uiImUnindent();
         uiImUnindent();
 
         uiImLabelColored(_("Background Color"), vec4(0.8, 0.3, 0.3, 1));

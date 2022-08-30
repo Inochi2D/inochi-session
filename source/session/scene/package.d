@@ -24,6 +24,8 @@ struct Scene {
 
     string bgPath;
     Texture backgroundImage;
+
+    bool shouldPostProcess = true;
 }
 
 struct SceneItem {
@@ -146,6 +148,8 @@ void insSceneInit() {
             insLogErr("%s", ex.msg);
         }
     }
+
+    insScene.shouldPostProcess = inSettingsGet!(bool)("shouldPostProcess", true);
     
     float[3] ambientLight = inSettingsGet!(float[3])("ambientLight", [1, 1, 1]);
     inSceneAmbientLight.vector = ambientLight;
@@ -266,8 +270,10 @@ void insUpdateScene() {
             }
         }
     inEndScene();
-    inPostProcessScene();
 
+    if (insScene.shouldPostProcess) {
+        inPostProcessScene();
+    }
 }
 
 /**
