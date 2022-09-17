@@ -1,0 +1,33 @@
+id: com.inochi2d.inochi-session
+runtime: org.kde.Platform
+runtime-version: "5.15-21.08"
+sdk: org.kde.Sdk
+# sdk-extensions:
+#   - org.freedesktop.Sdk.Extension.ldc
+#   - org.freedesktop.Sdk.Extension.dmd #This lacks aarch64 support, so gonna just pull a binary and later use only-arches to grab one when/if it's released. Session also behaves weirdly with D dependencies during build time. (as of the time of writing)
+command: "inochi-session"
+finish-args:
+    - "--device=all" #OpenGL rendering, webcams
+    - "--socket=x11"
+    - "--share=ipc" 
+    # - "--socket=wayland" Session forces X11 as the video backend, so no point in providing a Wayland socket
+    - "--filesystem=host" #Model files, the app (as of the time of writing) doesn't utilize portals.
+
+modules:
+
+# THIS IS JUST A BASE TEMPLATE. IT WILL MOST LIKELY NEED TO BE REDONE TO BE PUBLISHED ON A NEWER RELEASE
+
+
+
+  # --- Inochi Session ---
+  - name: Inochi-Session
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/bin/
+      - mv {inochi-session,cimgui.so} /app/bin/
+      - ls /app/bin/
+
+    sources: 
+      - type: archive
+        url: https://github.com/Inochi2D/inochi-session/releases/download/v0.5.4/inochi-session-linux-x86_64.zip
+        sha256: d7591dba9224e0363a2cdd21181f14fc734c07b8d7558d3e39eaf67f88879927
