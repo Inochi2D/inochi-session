@@ -15,14 +15,10 @@ targetPath "out/"
 workingDirectory "out/"
 copyFiles "res/licenses/*"
 
+dflags "-mscrtlib=msvcrt" platform="windows-ldc"
+lflags "-rpath=$$ORIGIN" platform="linux"
 versions "GL_32" "USE_SDL2" "USE_GL" "SDL_2020" "USE_OpenGL3"
 stringImportPaths "res"
-
-
-lflags "-rpath=$$ORIGIN" platform="linux"
-dflags "-mscrtlib=msvcrt" platform="windows-ldc"    // Use the dynamic CRT on Windows.
-//dflags "-flto=full" platform="ldc"		            // Enable Link Time Optimizations (LTO)
-//dflags "-link-defaultlib-shared" platform="ldc"	    // Use the shared D runtime
 
 // Uncomment following lines to enable JINS MEME Logger module.
 //versions "JML"
@@ -65,7 +61,9 @@ configuration "full" {
 
 configuration "osx-full" {
 	platform "osx"
+	targetType "executable"
 	targetPath "out/Inochi Session.app/Contents/MacOS"
+
 	subConfiguration "bindbc-imgui" "dynamic_dynamicCRT"
 	dflags "-preserve-dwarf-line-section=false"
 	lflags "-rpath" "@executable_path/../Frameworks" "-rpath" "@executable_path/."
@@ -76,11 +74,10 @@ configuration "osx-full" {
 
 configuration "win32-full" {
 	platforms "windows"
-
-
+	targetType "executable"
+	
 	dependency "bindbc-spout2" version="~>0.1.1"
 
-	targetType "executable"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="window-dmd"
 	sourceFiles "res\\inochi-session.res"
 	preBuildCommands "rc.exe /v res\\inochi-session.rc"
