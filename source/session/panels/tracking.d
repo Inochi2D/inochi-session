@@ -234,7 +234,7 @@ private:
             uiImLabel(_("Tracking In"));
             uiImPush(0);
                 uiImIndent();
-                    uiImProgress(binding.inVal);
+                    uiImProgress(binding.inVal, vec2(-float.min_normal, 0), "");
                     switch(binding.sourceType) {
                         case SourceType.Blendshape:
                             // TODO: Make all blendshapes in facetrack-d 0->1
@@ -262,7 +262,7 @@ private:
             uiImPush(1);
                 uiImIndent();
                     uiImRange(binding.outRange.x, binding.outRange.y, -float.max, float.max);
-                    uiImProgress(binding.outVal);
+                    uiImProgress(binding.param.mapAxis(binding.axis, binding.outVal), vec2(-float.min_normal, 0), "");
                 uiImUnindent();
             uiImPop();
         }

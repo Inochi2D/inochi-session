@@ -18,8 +18,6 @@ copyFiles "res/licenses/*"
 versions "GL_32" "USE_SDL2" "USE_GL" "SDL_2020" "USE_OpenGL3"
 stringImportPaths "res"
 
-preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
-
 
 lflags "-rpath=$$ORIGIN" platform="linux"
 dflags "-mscrtlib=msvcrt" platform="windows-ldc"    // Use the dynamic CRT on Windows.
@@ -62,6 +60,8 @@ configuration "full" {
 
 	targetType "executable"
 	versions "InBranding"
+
+	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
 }
 
 configuration "osx-full" {
@@ -70,10 +70,13 @@ configuration "osx-full" {
 	targetType "executable"
 	versions "InBranding" "ImGuiDynamic"
 
+	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
+
 }
 
 configuration "win32-full" {
 	platforms "windows"
+
 
 	dependency "bindbc-spout2" version="~>0.1.1"
 
@@ -82,6 +85,8 @@ configuration "win32-full" {
 	sourceFiles "res\\inochi-session.res"
 	preBuildCommands "rc.exe /v res\\inochi-session.rc"
 	versions "InBranding"
+
+	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
 }
 
 configuration "win32-lite" {

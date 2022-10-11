@@ -62,11 +62,11 @@ struct SceneItem {
         LinkSrcDst[] srcDst;
 
         // Note down link targets
-        foreach(param; puppet.parameters) {
-            foreach(ref ParamLink link; param.links) {
-                srcDst ~= LinkSrcDst(link.link, cast(int)link.outAxis);
-            }
-        }
+        // foreach(param; puppet.parameters) {
+        //     foreach(ref ParamLink link; param.links) {
+        //         srcDst ~= LinkSrcDst(link.link, cast(int)link.outAxis);
+        //     }
+        // }
 
         // Note existing bindings
         foreach(ref binding; bindings) {
