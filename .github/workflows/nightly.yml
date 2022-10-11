@@ -31,10 +31,14 @@ jobs:
         # Build translations
         mkdir otl/
         
-        sudo chmod +x gentl.sh
-        ./gentl.sh
-
-        cp out/* otl/
+        if [ -n `$(find tl/ -name "*.po" 2>/dev/null)` ]
+        then
+            echo "No translations, skipping..."
+        else
+            sudo chmod +x gentl.sh
+            ./gentl.sh
+            cp out/* otl/
+        fi
 
     - name: Make Artifact
       uses: actions/upload-artifact@v3
