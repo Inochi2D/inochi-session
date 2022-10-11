@@ -266,6 +266,7 @@ public:
                         xdata["appName"] = "inochi-session";
                         if (type == "VMC Receiver") xdata["address"] = "0.0.0.0";
                         adaptor = ftCreateAdaptor(type);
+                        if(adaptor is null) continue;
                         adaptor.setOptions(xdata);
 
                         if (adaptor) sources ~= adaptor;
@@ -276,6 +277,7 @@ public:
                         xdata["appName"] = "inochi-session";
                         if (type == "VMC Receiver") xdata["address"] = "0.0.0.0";
                         adaptor = ftCreateAdaptor(type);
+                        if(adaptor is null) continue;
                         adaptor.setOptions(xdata);
                     
                         if (adaptor) sources ~= adaptor;
