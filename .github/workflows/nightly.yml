@@ -125,6 +125,7 @@ jobs:
         compiler: ldc-latest
         
     - name: Download translations
+      continue-on-error: true
       uses: actions/download-artifact@v3
       with:
         name: translations
