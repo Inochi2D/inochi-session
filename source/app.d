@@ -19,6 +19,10 @@ import session.framesend;
 import session.tracking.expr;
 import std.process;
 
+version(linux) {
+    import dportals.filechooser;
+    import dportals.promise;
+}
 
 void main(string[] args) {
     insLogInfo("Inochi Session %s, args=%s", INS_VERSION, args[1..$]);
@@ -57,4 +61,156 @@ void main(string[] args) {
     insCleanupFrameSending();
     insSceneCleanup();
     inSettingsSave();
+}
+
+private {
+    version(linux) {
+        string getWindowHandle() {
+            SDL_SysWMinfo info;
+            SDL_GetWindowWMInfo(incGetWindowPtr(), &info);
+            if (info.subsystem == SDL_SYSWM_TYPE.SDL_SYSWM_X11) {
+                import std.conv : to;
+                return "x11:"~info.info.x11.window.to!string(16);
+            }
+            return "";
+        }
+        
+        FileFilter[] tfdToFileFilter(const(TFD_Filter)[] filters) {
+            FileFilter[] out_;
+
+            foreach(filter; filters) {
+                auto of = FileFilter(
+                    cast(string)filter.description.fromStringz,
+                    []
+                );
+
+                foreach(i, pattern; filter.patterns) {
+                    of.items ~= FileFilterItem(
+                        cast(uint)i,
+                        cast(string)pattern.fromStringz
+                    );
+                }
+
+                out_ ~= of;
+            }
+
+            return out_;
+        }
+
+        string uriFromPromise(Promise promise) {
+            if (promise.success) {
+                import std.array : replace;
+                string uri = promise.value["uris"].data.array[0].str;
+                uri = uri.replace("%20", " ");
+                return uri[7..$];
+            }
+            return null;
+        }
+    }
+}
+
+string incShowImportDialog(const(TFD_Filter)[] filters) {
+    version(linux) {
+        try {
+            FileOpenOptions op;
+            op.filters = tfdToFileFilter(filters);
+            auto promise = dpFileChooserOpenFile(getWindowHandle(), "Import...", op);
+            promise.await();
+            return promise.uriFromPromise();
+        } catch (Throwable ex) {
+
+            // FALLBACK: If xdg-desktop-portal is not available then try tinyfiledialogs.
+            c_str filename = tinyfd_openFileDialog(__("Import..."), "", filters, false);
+            if (filename !is null) {
+                string file = cast(string)filename.fromStringz;
+                return file;
+            }
+            return null;
+        }
+    } else {
+        c_str filename = tinyfd_openFileDialog(__("Import..."), "", filters, false);
+        if (filename !is null) {
+            string file = cast(string)filename.fromStringz;
+            return file;
+        }
+        return null;
+    }
+}
+
+string incShowOpenFolderDialog(string title="Open...") {
+    version(linux) {
+        try {
+            FileOpenOptions op;
+            op.directory = true;
+            auto promise = dpFileChooserOpenFile(getWindowHandle(), title, op);
+            promise.await();
+            return promise.uriFromPromise();
+        } catch(Throwable _) {
+
+            // FALLBACK: If xdg-desktop-portal is not available then try tinyfiledialogs.
+            c_str filename = tinyfd_selectFolderDialog(title.toStringz, null);
+            if (filename !is null) return cast(string)filename.fromStringz;
+            return null;
+        }
+    } else {
+        c_str filename = tinyfd_selectFolderDialog(title.toStringz, null);
+        if (filename !is null) return cast(string)filename.fromStringz;
+        return null;
+    }
+}
+
+string incShowOpenDialog(const(TFD_Filter)[] filters, string title="Open...") {
+    version(linux) {
+        try {
+            FileOpenOptions op;
+            op.filters = tfdToFileFilter(filters);
+            auto promise = dpFileChooserOpenFile(getWindowHandle(), title, op);
+            promise.await();
+            return promise.uriFromPromise();
+        } catch(Throwable ex) {
+
+            // FALLBACK: If xdg-desktop-portal is not available then try tinyfiledialogs.
+            c_str filename = tinyfd_openFileDialog(title.toStringz, "", filters, false);
+            if (filename !is null) {
+                string file = cast(string)filename.fromStringz;
+                return file;
+            }
+            return null;
+        }
+    } else {
+        c_str filename = tinyfd_openFileDialog(title.toStringz, "", filters, false);
+        if (filename !is null) {
+            string file = cast(string)filename.fromStringz;
+            return file;
+        }
+        return null;
+    }
+}
+
+string incShowSaveDialog(const(TFD_Filter)[] filters, string fname, string title = "Save...") {
+    version(linux) {
+        try {
+            FileSaveOptions op;
+            op.filters = tfdToFileFilter(filters);
+            auto promise = dpFileChooserSaveFile(getWindowHandle(), title, op);
+            promise.await();
+            return promise.uriFromPromise();
+        } catch (Throwable ex) {
+
+            // FALLBACK: If xdg-desktop-portal is not available then try tinyfiledialogs.
+            c_str filename = tinyfd_saveFileDialog(title.toStringz, fname.toStringz, filters);
+            if (filename !is null) {
+                string file = cast(string)filename.fromStringz;
+                return file;
+            }
+            return null;
+        }
+    } else {
+        c_str filename = tinyfd_saveFileDialog(title.toStringz, fname.toStringz, filters);
+        if (filename !is null) {
+            string file = cast(string)filename.fromStringz;
+            return file;
+        }
+        return null;
+    }
 }
