@@ -22,9 +22,6 @@ import std.process;
 
 void main(string[] args) {
     insLogInfo("Inochi Session %s, args=%s", INS_VERSION, args[1..$]);
-    
-    // Force X11 as the video driver on Linux
-    version(linux) environment["SDL_VIDEODRIVER"] = "x11";
 
     // Set the application info
     InApplication appInfo = InApplication(
