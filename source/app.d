@@ -109,7 +109,7 @@ private {
     }
 }
 
-string incShowImportDialog(const(TFD_Filter)[] filters) {
+string insShowImportDialog(const(TFD_Filter)[] filters) {
     version(linux) {
         try {
             FileOpenOptions op;
@@ -137,7 +137,7 @@ string incShowImportDialog(const(TFD_Filter)[] filters) {
     }
 }
 
-string incShowOpenFolderDialog(string title="Open...") {
+string insShowOpenFolderDialog(string title="Open...") {
     version(linux) {
         try {
             FileOpenOptions op;
@@ -159,7 +159,7 @@ string incShowOpenFolderDialog(string title="Open...") {
     }
 }
 
-string incShowOpenDialog(const(TFD_Filter)[] filters, string title="Open...") {
+string insShowOpenDialog(const(TFD_Filter)[] filters, string title="Open...") {
     version(linux) {
         try {
             FileOpenOptions op;
@@ -187,7 +187,7 @@ string incShowOpenDialog(const(TFD_Filter)[] filters, string title="Open...") {
     }
 }
 
-string incShowSaveDialog(const(TFD_Filter)[] filters, string fname, string title = "Save...") {
+string insShowSaveDialog(const(TFD_Filter)[] filters, string fname, string title = "Save...") {
     version(linux) {
         try {
             FileSaveOptions op;
