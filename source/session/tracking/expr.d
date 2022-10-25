@@ -14,12 +14,17 @@ import lumars;
 import bindbc.lua : luaL_newstate, luaopen_math, lua_close;
 import std.format;
 import i18n;
+import open_simplex_2.open_simplex_2_f;
+import std.random : uniform;
 
 private {
     LuaState* state;
+    OpenSimplex2F simplex;
 }
 
 void insInitExpressions() {
+
+    simplex = new OpenSimplex2F(uniform(0, ulong.max));
 
     // The expression system is COMPLETELY sandboxed
     // Having no access to any lua standard library features
@@ -86,6 +91,8 @@ void insInitExpressions() {
     state.register!((float y, float x) { return atan2(y, x); })("atan2");
     state.register!((float value) { return degrees(value); })("degrees");
     state.register!((float value) { return radians(value); })("radians");
+    state.register!((float val) { return simplex.noise2(val, 0); })("simplex");
+    state.register!((float val) { return (1+simplex.noise2(val, 0))/2.0; })("usimplex");
 }
 
 void insCleanupExpressions() {
