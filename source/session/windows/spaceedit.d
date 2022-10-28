@@ -108,6 +108,15 @@ private:
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
+            version (WebHookAdaptor) {
+                if (uiImSelectable("WebHook Receiver")) {
+                    if (source) source.stop();
+
+                    source = new WebHookAdaptor();
+                    editingZone.sources[i] = source;
+                    refreshOptionsList();
+                }
+            }
             version (JML) {
                 if (uiImSelectable("JINS MEME Logger")) {
                     if (source) source.stop();
