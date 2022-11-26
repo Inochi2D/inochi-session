@@ -63,6 +63,7 @@ configuration "osx-full" {
 	platform "osx"
 	targetType "executable"
 	targetPath "out/Inochi Session.app/Contents/MacOS"
+	versions "InBranding"
 
 	subConfiguration "bindbc-imgui" "dynamic_dynamicCRT"
 	dflags "-preserve-dwarf-line-section=false"
@@ -75,13 +76,13 @@ configuration "osx-full" {
 configuration "win32-full" {
 	platforms "windows"
 	targetType "executable"
+	versions "InBranding"
 	
 	dependency "bindbc-spout2" version="~>0.1.1"
 
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="window-dmd"
 	sourceFiles "res\\inochi-session.res"
 	preBuildCommands "rc.exe /v res\\inochi-session.rc"
-	versions "InBranding"
 
 	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
 }
