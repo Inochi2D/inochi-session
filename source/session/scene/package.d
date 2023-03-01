@@ -17,6 +17,8 @@ import std.string;
 import session.plugins;
 import session.render.spritebatch;
 import bindbc.opengl;
+import inochi2d.core.animation.player;
+import std.math.operations : isClose;
 
 struct Scene {
     VirtualSpace space;
@@ -26,12 +28,15 @@ struct Scene {
     Texture backgroundImage;
 
     bool shouldPostProcess = true;
+    float zoneInactiveTimer = 0;
 }
 
 struct SceneItem {
     string filePath;
     Puppet puppet;
     TrackingBinding[] bindings;
+    AnimationPlayer player;
+    AnimationPlaybackRef sleepAnim;
 
     void saveBindings() {
         puppet.extData["com.inochi2d.inochi-session.bindings"] = cast(ubyte[])serializeToJson(bindings);
@@ -120,6 +125,9 @@ void insSceneAddPuppet(string path, Puppet puppet) {
     SceneItem item;
     item.filePath = path;
     item.puppet = puppet;
+    item.player = new AnimationPlayer(puppet);
+    item.sleepAnim = item.player.createOrGet("tracking_lost");
+    
     if (!item.tryLoadBindings()) {
         // Reset bindings
         item.bindings.length = 0;
@@ -255,11 +263,46 @@ void insUpdateScene() {
             }
         }
 
+        
+        if (!insScene.space.isCurrentZoneActive()) {
+            insScene.zoneInactiveTimer += deltaTime();
+            if (insScene.zoneInactiveTimer >= 5) {
+                foreach(ref sceneItem; insScene.sceneItems) {
+                    if (sceneItem.sleepAnim && !sceneItem.sleepAnim.playing()) {
+                        sceneItem.sleepAnim.strength = 1;
+                        sceneItem.sleepAnim.play(true);
+                    }
+                }
+            }
+        } else {
+            insScene.zoneInactiveTimer -= deltaTime();
+        }
+        insScene.zoneInactiveTimer = clamp(insScene.zoneInactiveTimer, 0, 6);
+        
+        import std.stdio : writeln;
+
         // Update every scene item
         foreach(ref sceneItem; insScene.sceneItems) {
             
             foreach(ref binding; sceneItem.bindings) {
                 binding.update();
+            }
+
+            sceneItem.player.update(deltaTime());
+            if (sceneItem.sleepAnim) {
+                if (sceneItem.sleepAnim.isRunning) {
+                    float eframe = sceneItem.sleepAnim.hframe-sceneItem.sleepAnim.loopPointEnd;
+                    float elen = cast(float)sceneItem.sleepAnim.frames-sceneItem.sleepAnim.loopPointEnd;
+
+                    if (sceneItem.sleepAnim.stopping) {
+                        sceneItem.sleepAnim.strength = 1-(eframe/elen);
+                    }
+
+                    // Stop sleep animation
+                    if (!sceneItem.sleepAnim.stopping && sceneItem.sleepAnim.playing && insScene.space.isCurrentZoneActive()) {
+                        sceneItem.sleepAnim.stop();
+                    }
+                }
             }
 
             sceneItem.puppet.update();
