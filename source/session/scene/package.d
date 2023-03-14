@@ -387,15 +387,15 @@ void insInteractWithScene() {
                     auto puppet = sceneItem.puppet;
 
                     // Calculate on-screen bounds of the object
-                    vec4 lbounds = puppet.root.getCombinedBounds!true();
+                    vec4 lbounds = puppet.getCombinedBounds!true();
                     vec2 tl = vec4(lbounds.xy, 0, 1);
                     vec2 br = vec4(lbounds.zw, 0, 1);
                     vec2 size = abs(br-tl);
                     rect bounds = rect(tl.x, tl.y, size.x, size.y);
 
                     if (bounds.intersects(mousePos)) {
-                        draggingPuppetStartPos = puppet.root.localTransform.translation.xy;
-                        targetScale = puppet.root.localTransform.scale.x;
+                        draggingPuppetStartPos = puppet.transform.translation.xy;
+                        targetScale = puppet.transform.scale.x;
                         targetPos = draggingPuppetStartPos;
                         targetSize = size;
                         draggingPuppet = puppet;
@@ -431,7 +431,7 @@ void insInteractWithScene() {
         
         if (targetScale != prevScale) {
             inSetUpdateBounds(true);
-                vec4 lbounds = draggingPuppet.root.getCombinedBounds!true();
+                vec4 lbounds = draggingPuppet.transform.matrix*draggingPuppet.getCombinedBounds!true();
                 vec2 tl = vec4(lbounds.xy, 0, 1);
                 vec2 br = vec4(lbounds.zw, 0, 1);
                 targetSize = abs(br-tl);
@@ -500,8 +500,8 @@ void insInteractWithScene() {
         if (isDragDown && isMouseOverDelete) {
             
 
-            draggingPuppet.root.localTransform.translation = dampen(
-                draggingPuppet.root.localTransform.translation,
+            draggingPuppet.transform.translation = dampen(
+                draggingPuppet.transform.translation,
                 vec3(
                     (inCamera.position.x+(-cameraCenter.x)+128), 
                     (inCamera.position.y+(cameraCenter.y)-128), 
@@ -511,22 +511,22 @@ void insInteractWithScene() {
             );
 
             // Dampen & clamp scaling
-            draggingPuppet.root.localTransform.scale = dampen(
-                draggingPuppet.root.localTransform.scale,
+            draggingPuppet.transform.scale = dampen(
+                draggingPuppet.transform.scale,
                 vec2(0.025),
                 inGetDeltaTime()
             );
         } else {
 
-            draggingPuppet.root.localTransform.translation = dampen(
-                draggingPuppet.root.localTransform.translation,
+            draggingPuppet.transform.translation = dampen(
+                draggingPuppet.transform.translation,
                 vec3(targetPos, 0),
                 inGetDeltaTime()
             );
 
             // Dampen & clamp scaling
-            draggingPuppet.root.localTransform.scale = dampen(
-                draggingPuppet.root.localTransform.scale,
+            draggingPuppet.transform.scale = dampen(
+                draggingPuppet.transform.scale,
                 vec2(targetScale),
                 inGetDeltaTime()
             );
