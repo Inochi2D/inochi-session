@@ -108,6 +108,13 @@ private:
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
+            if (uiImSelectable("iFacialMocap")) {
+                if (source) source.stop();
+
+                source = new IFMAdaptor();
+                editingZone.sources[i] = source;
+                refreshOptionsList();
+            }
             version (WebHookAdaptor) {
                 if (uiImSelectable("WebHook Receiver")) {
                     if (source) source.stop();
