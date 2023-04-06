@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   linux-appimage:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v3
@@ -87,7 +87,7 @@ jobs:
         PACKAGE: 'build/inochi-session-x86_64.AppImage'
 
   linux-zip:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v3
