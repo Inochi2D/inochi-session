@@ -220,6 +220,8 @@ jobs:
         dub add-local inui/ "1.0.0"
 
     - name: 'Build Inochi Session'
+      env:
+        DFLAGS: "-g -force-dwarf-frame-section=false"
       run: |
         # First build ARM64 version...
         echo "Building arm64 binary..."

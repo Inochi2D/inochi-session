@@ -66,7 +66,6 @@ configuration "osx-full" {
 	versions "InBranding"
 
 	subConfiguration "bindbc-imgui" "dynamic_dynamicCRT"
-	dflags "-preserve-dwarf-line-section=false"
 	lflags "-rpath" "@executable_path/../Frameworks" "-rpath" "@executable_path/."
 
 	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
