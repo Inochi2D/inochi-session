@@ -177,7 +177,7 @@ public:
     }
 
     bool isCurrentZoneActive() {
-        return currentZone.sources.length > 0 && currentZone.sources[0] && currentZone.sources[0].isReceivingData;
+        return currentZone && currentZone.sources.length > 0 && currentZone.sources[0] && currentZone.sources[0].isReceivingData;
     }
 
     /**
