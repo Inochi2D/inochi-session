@@ -42,7 +42,7 @@ jobs:
         dub build --config=meta
 
         # Build the project, with its main file included, without unittests
-        dub build --compiler=ldc2 --build=release --config=full
+        dub build --compiler=ldc2 --build=release --config=linux-full
 
     - name: Archive Zip
       uses: thedoctor0/zip-release@main
@@ -95,6 +95,11 @@ jobs:
               }
           }
           Invoke-VSDevEnvironment
+          
+          # Build metadata (like version information and icons)
+          dub build --config=meta
+          
+          # Build the project, with its main file included, without unittests
           dub build --compiler=ldc2 --build=release --config=win32-full
           
     - name: 'Archive Zip'

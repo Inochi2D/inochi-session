@@ -75,7 +75,7 @@ jobs:
     - name: 'Build Inochi Session'
       run: |
         # Build the project, with its main file included, without unittests
-        dub build --compiler=ldc2 --config=full --debug=InExperimental
+        dub build --compiler=ldc2 --config=linux-nightly --debug=InExperimental
           
     - name: Archive Zip
       uses: thedoctor0/zip-release@main
@@ -131,7 +131,7 @@ jobs:
               }
           }
           Invoke-VSDevEnvironment
-          dub build --compiler=ldc2 --config=win32-full --debug=InExperimental
+          dub build --compiler=ldc2 --config=win32-nightly --debug=InExperimental
 
     - name: Archive Zip
       uses: thedoctor0/zip-release@main
@@ -193,12 +193,12 @@ jobs:
       run: |
         # First build ARM64 version...
         echo "Building arm64 binary..."
-        dub build --config=osx-full --arch=arm64-apple-macos
+        dub build --config=osx-nightly --arch=arm64-apple-macos
         mv "out/Inochi Session.app/Contents/MacOS/inochi-session" "out/Inochi Session.app/Contents/MacOS/inochi-session-arm64"
 
         # Then the X86_64 version...
         echo "Building x86_64 binary..."
-        dub build --config=osx-full --arch=x86_64-apple-macos
+        dub build --config=osx-nightly --arch=x86_64-apple-macos
         mv "out/Inochi Session.app/Contents/MacOS/inochi-session" "out/Inochi Session.app/Contents/MacOS/inochi-session-x86_64"
 
         # Glue them together with lipo
