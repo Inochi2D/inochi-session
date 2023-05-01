@@ -7,7 +7,7 @@ name: Build & Release
 on:
   push:
     tags:
-      - '*'
+      - '*-rc*'
 
 permissions:
   contents: write
