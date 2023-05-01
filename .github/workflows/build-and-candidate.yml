@@ -2,7 +2,7 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-name: Build & Release
+name: Build & Release RC
 
 on:
   push:
@@ -59,16 +59,6 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
           files: 'out/inochi-session-linux-x86_64.zip'
-        
-    - name: 'Publish to Itch'
-      uses: manleydev/butler-publish-itchio-action@master
-      env:
-        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
-        CHANNEL: linux
-        ITCH_GAME: inochi-session
-        ITCH_USER: LunaFoxgirlVT
-        VERSION_FILE: version.txt
-        PACKAGE: 'out/inochi-session-linux-x86_64.zip'
 
   windows-build:
     runs-on: windows-latest
