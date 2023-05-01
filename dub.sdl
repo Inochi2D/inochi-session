@@ -38,7 +38,7 @@ configuration "barebones" {
 // unless you have prior permission from the Inochi2D project.
 configuration "meta" {
 	targetType "none"
-	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
+	preGenerateCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
 	preGenerateCommands "rc.exe /v res\\inochi-session.rc" platform="windows"
 }
 
