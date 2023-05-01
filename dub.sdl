@@ -4,12 +4,12 @@ authors "Inochi2D Project"
 copyright "Copyright © 2021, Inochi2D Project"
 license "BSD 2-clause"
 dependency "tinyfiledialogs" version="~>0.10.1"
-dependency "facetrack-d" version="~>0.7.0"
+dependency "facetrack-d" version="~>0.7.5"
 dependency "bindbc-imgui" version="~>0.7.0"
 dependency "inui" version="~>1.0.0"
 dependency "lumars" version="~>1.6.1"
 dependency "bindbc-sdl" version="~>1.1.2"
-dependency "i18n-d" version="~>1.0.1"
+dependency "i18n-d" version="~>1.0.2"
 dependency "inochi2d" version="~>0.8.0"
 targetPath "out/"
 workingDirectory "out/"
@@ -32,25 +32,17 @@ configuration "barebones" {
 	targetType "executable"
 }
 
-configuration "win32-barebones" {
-	platforms "windows"
-	
-	dependency "bindbc-spout2" version="~>0.1.1"
-
-	targetType "executable"
-	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup"
-}
-
-configuration "osx-barebones" {
-	platform "osx"
-	targetType "executable"
-
-}
 
 // Official build configurations.
 // Do not package your compilation of Inochi Creator with these configurations
 // unless you have prior permission from the Inochi2D project.
-configuration "full" {
+configuration "meta" {
+	targetType "none"
+	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
+	preGenerateCommands "rc.exe /v res\\inochi-session.rc" platform="windows"
+}
+
+configuration "linux-full" {
 	platforms "linux"
 
 	targetType "executable"
@@ -68,8 +60,6 @@ configuration "osx-full" {
 	subConfiguration "bindbc-imgui" "dynamic_dynamicCRT"
 	lflags "-rpath" "@executable_path/../Frameworks" "-rpath" "@executable_path/."
 
-	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
-
 }
 
 configuration "win32-full" {
@@ -81,16 +71,36 @@ configuration "win32-full" {
 
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="window-dmd"
 	sourceFiles "res\\inochi-session.res"
-	preBuildCommands "rc.exe /v res\\inochi-session.rc"
-
-	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
 }
 
-configuration "win32-lite" {
-	platforms "windows"
+// Linux nightly build
+configuration "linux-nightly" {
 
-	dependency "bindbc-spout2" version="~>0.1.1"
-
+	platforms "linux"
 	targetType "executable"
-	versions "InBranding" "InLite"
+	subConfiguration "bindbc-imgui" "static_dynamicCRT"
+	versions "InNightly"
+	
+	dependency "dportals" version="~>0.1.0"
+}
+
+// macOS nightly build
+configuration "osx-nightly" {
+	platforms "osx"
+	targetType "executable"
+	targetPath "out/Inochi Creator.app/Contents/MacOS"
+	subConfiguration "bindbc-imgui" "dynamic_dynamicCRT"
+	dflags "-force-dwarf-frame-section=false"
+	lflags "-rpath" "@executable_path/../Frameworks" "-rpath" "@executable_path/."
+	versions "InNightly"
+}
+
+// Windows nightly build
+configuration "win32-nightly" {
+	platforms "windows"
+	targetType "executable"
+	subConfiguration "bindbc-imgui" "static_staticCRT"
+	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="windows-dmd"
+	sourceFiles "res\\inochi-creator.res"
+	versions "InNightly"
 }
