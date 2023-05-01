@@ -57,6 +57,7 @@ void insCleanupFrameSending() {
     if (loadSuccessful) {
         version(Windows) {
             spReleaseSender(spHandle, 0);
+            spHandle = null;
             unloadSpout2();
         }
     }
@@ -71,7 +72,7 @@ void insSendFrame() {
         inGetViewport(w, h);
 
         version(Windows) {
-            spSendTexture(spHandle, inGetRenderImage(), GL_TEXTURE_2D, w, h, true, inGetFramebuffer());
+            if (spHandle) spSendTexture(spHandle, inGetRenderImage(), GL_TEXTURE_2D, w, h, true, inGetFramebuffer());
         }
     }
 }
