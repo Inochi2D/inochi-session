@@ -110,15 +110,6 @@ jobs:
       with:
           files: out/inochi-session-win32-x86_64.zip
 
-    - name: Make Artifact of ZIP
-      uses: actions/upload-artifact@v3
-      with:
-        name: release-win32
-        path: |
-          out/inochi-session-win32-x86_64.zip
-          version.txt
-        retention-days: 1
-
   macOS-build:
     runs-on: macos-12
 
