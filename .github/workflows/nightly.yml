@@ -74,6 +74,9 @@ jobs:
 
     - name: 'Build Inochi Session'
       run: |
+        # Build metadata (like version information and icons)
+        dub build --config=meta
+
         # Build the project, with its main file included, without unittests
         dub build --compiler=ldc2 --config=linux-nightly --debug=InExperimental
           
@@ -131,6 +134,10 @@ jobs:
               }
           }
           Invoke-VSDevEnvironment
+          # Build metadata (like version information and icons)
+          dub build --config=meta
+
+          # Build the project, with its main file included, without unittests
           dub build --compiler=ldc2 --config=win32-nightly --debug=InExperimental
 
     - name: Archive Zip
@@ -191,6 +198,9 @@ jobs:
       env:
         DFLAGS: "-g -force-dwarf-frame-section=false"
       run: |
+        # Build metadata (like version information and icons)
+        dub build --config=meta
+
         # First build ARM64 version...
         echo "Building arm64 binary..."
         dub build --config=osx-nightly --arch=arm64-apple-macos
