@@ -34,8 +34,8 @@ jobs:
       
     - name: 'Clone dependencies & set versions'
       run: |
-        git clone https://github.com/Inochi2D/bindbc-imgui.git --recurse-submodules
-        dub add-local bindbc-imgui/ "0.7.0"
+        git clone https://github.com/Inochi2D/i2d-imgui.git --recurse-submodules
+        dub add-local i2d-imgui/ "0.8.0"
 
     - name: 'Build Inochi Session'
       run: |
@@ -80,8 +80,8 @@ jobs:
       
     - name: 'Clone dependencies & set versions'
       run: |
-        git clone https://github.com/Inochi2D/bindbc-imgui.git --recurse-submodules
-        dub add-local bindbc-imgui/ "0.7.0"
+        git clone https://github.com/Inochi2D/i2d-imgui.git --recurse-submodules
+        dub add-local i2d-imgui/ "0.8.0"
 
     - name: 'Build Inochi Session'
       run: |
@@ -188,8 +188,8 @@ jobs:
       
     - name: "Clone dependencies & set versions"
       run: |
-        git clone https://github.com/Inochi2D/bindbc-imgui.git --recurse-submodules
-        dub add-local bindbc-imgui/ "0.7.0"
+        git clone https://github.com/Inochi2D/i2d-imgui.git --recurse-submodules
+        dub add-local i2d-imgui/ "0.8.0"
 
     - name: 'Build Inochi Session'
       env:

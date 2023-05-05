@@ -5,7 +5,7 @@ copyright "Copyright © 2021, Inochi2D Project"
 license "BSD 2-clause"
 dependency "tinyfiledialogs" version="~>0.10.1"
 dependency "facetrack-d" version="~>0.7.6"
-dependency "bindbc-imgui" version="~>0.7.0"
+dependency "i2d-imgui" version="~>0.8.0"
 dependency "inui" version="~>1.2.0"
 dependency "lumars" version="~>1.6.1"
 dependency "bindbc-sdl" version="~>1.1.2"
@@ -57,7 +57,7 @@ configuration "osx-full" {
 	targetPath "out/Inochi Session.app/Contents/MacOS"
 	versions "InBranding"
 
-	subConfiguration "bindbc-imgui" "dynamic_dynamicCRT"
+	subConfiguration "i2d-imgui" "dynamic_dynamicCRT"
 	lflags "-rpath" "@executable_path/../Frameworks" "-rpath" "@executable_path/."
 
 }
@@ -78,7 +78,7 @@ configuration "linux-nightly" {
 
 	platforms "linux"
 	targetType "executable"
-	subConfiguration "bindbc-imgui" "static_dynamicCRT"
+	subConfiguration "i2d-imgui" "static_dynamicCRT"
 	versions "InNightly"
 	
 	dependency "dportals" version="~>0.1.0"
@@ -89,7 +89,7 @@ configuration "osx-nightly" {
 	platforms "osx"
 	targetType "executable"
 	targetPath "out/Inochi Creator.app/Contents/MacOS"
-	subConfiguration "bindbc-imgui" "dynamic_dynamicCRT"
+	subConfiguration "i2d-imgui" "dynamic_dynamicCRT"
 	dflags "-force-dwarf-frame-section=false"
 	lflags "-rpath" "@executable_path/../Frameworks" "-rpath" "@executable_path/."
 	versions "InNightly"
@@ -99,7 +99,7 @@ configuration "osx-nightly" {
 configuration "win32-nightly" {
 	platforms "windows"
 	targetType "executable"
-	subConfiguration "bindbc-imgui" "static_staticCRT"
+	subConfiguration "i2d-imgui" "static_staticCRT"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="windows-dmd"
 	sourceFiles "res\\inochi-creator.res"
 	versions "InNightly"
