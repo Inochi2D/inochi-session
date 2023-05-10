@@ -39,7 +39,7 @@ configuration "barebones" {
 configuration "meta" {
 	targetType "none"
 	preGenerateCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
-	preGenerateCommands "rc.exe /v res\\inochi-session.rc" platform="windows"
+	preGenerateCommands "rc.exe /v build-aux\\windows\\inochi-session.rc" platform="windows"
 }
 
 configuration "linux-full" {
@@ -70,7 +70,7 @@ configuration "win32-full" {
 	dependency "bindbc-spout2" version="~>0.1.1"
 
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="window-dmd"
-	sourceFiles "res\\inochi-session.res"
+	sourceFiles "build-aux\\windows\\inochi-session.res"
 }
 
 // Linux nightly build
@@ -101,6 +101,6 @@ configuration "win32-nightly" {
 	targetType "executable"
 	subConfiguration "i2d-imgui" "static_staticCRT"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="windows-dmd"
-	sourceFiles "res\\inochi-creator.res"
+	sourceFiles "build-aux\\windows\\inochi-creator.res"
 	versions "InNightly"
 }
