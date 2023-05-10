@@ -6,7 +6,7 @@ license "BSD 2-clause"
 dependency "tinyfiledialogs" version="~>0.10.1"
 dependency "facetrack-d" version="~>0.7.6"
 dependency "i2d-imgui" version="~>0.8.0"
-dependency "inui" version="~>1.2.0"
+dependency "inui" version="~>1.2.1"
 dependency "lumars" version="~>1.6.1"
 dependency "bindbc-sdl" version="~>1.1.2"
 dependency "i18n-d" version="~>1.0.2"
@@ -47,6 +47,8 @@ configuration "linux-full" {
 
 	targetType "executable"
 	versions "InBranding"
+	
+	dependency "dportals" version="~>0.1.0"
 
 	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
 }
@@ -88,10 +90,13 @@ configuration "linux-nightly" {
 configuration "osx-nightly" {
 	platforms "osx"
 	targetType "executable"
-	targetPath "out/Inochi Creator.app/Contents/MacOS"
+
+	targetPath "out/Inochi Session.app/Contents/MacOS"
+
 	subConfiguration "i2d-imgui" "dynamic_dynamicCRT"
 	dflags "-force-dwarf-frame-section=false"
 	lflags "-rpath" "@executable_path/../Frameworks" "-rpath" "@executable_path/."
+
 	versions "InNightly"
 }
 
@@ -101,7 +106,7 @@ configuration "win32-nightly" {
 	targetType "executable"
 	
 	dependency "bindbc-spout2" version="~>0.1.1"
-	
+
 	subConfiguration "i2d-imgui" "static_staticCRT"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="windows-dmd"
 	sourceFiles "build-aux\\windows\\inochi-creator.res"
