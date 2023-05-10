@@ -99,6 +99,9 @@ configuration "osx-nightly" {
 configuration "win32-nightly" {
 	platforms "windows"
 	targetType "executable"
+	
+	dependency "bindbc-spout2" version="~>0.1.1"
+	
 	subConfiguration "i2d-imgui" "static_staticCRT"
 	lflags "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup" platform="windows-dmd"
 	sourceFiles "build-aux\\windows\\inochi-creator.res"
