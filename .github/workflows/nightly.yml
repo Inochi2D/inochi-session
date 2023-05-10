@@ -134,6 +134,7 @@ jobs:
               }
           }
           Invoke-VSDevEnvironment
+          
           # Build metadata (like version information and icons)
           dub build --config=meta
 
