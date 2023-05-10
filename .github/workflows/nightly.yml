@@ -222,11 +222,11 @@ jobs:
         # Cleanup and bundle
         echo "Cleaning up..."
         rm "out/Inochi Session.app/Contents/MacOS/inochi-session-x86_64" "out/Inochi Session.app/Contents/MacOS/inochi-session-arm64"
-        ./osxbundle.sh
+        ./build-aux/osx/osxbundle.sh
 
     - name: 'Build DMG'
       run: |
-        ./gendmg.sh
+        ./build-aux/osx/gendmg.sh
 
     - name: Release to nightly tag
       uses: softprops/action-gh-release@v1
