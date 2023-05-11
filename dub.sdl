@@ -49,8 +49,6 @@ configuration "linux-full" {
 	versions "InBranding"
 	
 	dependency "dportals" version="~>0.1.0"
-
-	preBuildCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
 }
 
 configuration "osx-full" {
