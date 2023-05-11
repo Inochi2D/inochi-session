@@ -30,6 +30,8 @@ stringImportPaths "res"
 configuration "barebones" {
 	platforms "linux"
 	targetType "executable"
+
+	dependency "dportals" version="~>0.1.0"
 }
 
 
