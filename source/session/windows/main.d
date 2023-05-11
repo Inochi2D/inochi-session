@@ -10,6 +10,7 @@ import session.scene;
 import session.log;
 import session.framesend;
 import session.plugins;
+import session.io;
 import inui;
 import inui.widgets;
 import inui.toolwindow;
@@ -21,6 +22,8 @@ import i18n;
 import inui.utils.link;
 import std.format;
 import session.ver;
+
+version(linux) import dportals;
 
 private {
     struct InochiWindowSettings {
@@ -77,6 +80,23 @@ protected:
                 }
 
                 if (uiImBeginMenu(__("File"))) {
+
+                    if (uiImMenuItem(__("Open"))) {
+                        const TFD_Filter[] filters = [
+                            { ["*.inp"], "Inochi2d Puppet (*.inp)" }
+                        ];
+
+                        string parentWindow = "";
+                        version(linux) {
+                            static if (is(typeof(&getWindowHandle))) {
+                                parentWindow = getWindowHandle();
+                            }
+                        }
+                        string file = insShowOpenDialog(filters, _("Open..."), parentWindow);
+                        if (file) loadModels([file]);
+                    }
+
+                    uiImSeperator();
 
                     if (uiImMenuItem(__("Exit"))) {
                         this.close();
@@ -170,6 +190,8 @@ protected:
                 }
             uiImEndMainMenuBar();
         }
+
+        version(linux) dpUpdate();
     }
 
     override
@@ -212,5 +234,7 @@ public:
         version (InBranding) {
             logo = new Texture(ShallowTexture(cast(ubyte[])import("tex/logo.png")));
         }
+
+        version(linux) dpInit();
     }
 }
