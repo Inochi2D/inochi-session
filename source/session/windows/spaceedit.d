@@ -101,6 +101,13 @@ private:
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
+            if (uiImSelectable("Phiz")) {
+                if (source) source.stop();
+
+                source = new PhizAdaptor();
+                editingZone.sources[i] = source;
+                refreshOptionsList();
+            }
             if (uiImSelectable("OpenSeeFace")) {
                 if (source) source.stop();
 
