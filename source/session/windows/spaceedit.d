@@ -122,6 +122,15 @@ private:
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
+            version (Phiz) {
+                if (uiImSelectable("Phiz Receiver")) {
+                    if (source) source.stop();
+
+                    source = new PhizAdaptor();
+                    editingZone.sources[i] = source;
+                    refreshOptionsList();
+                }
+            }
             version (WebHookAdaptor) {
                 if (uiImSelectable("WebHook Receiver")) {
                     if (source) source.stop();
