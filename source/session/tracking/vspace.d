@@ -265,7 +265,7 @@ public:
                         // NOTE: inochi-session should ALWAYS be the appName.
                         xdata["appName"] = "inochi-session";
                         if (type == "VMC Receiver") xdata["address"] = "0.0.0.0";
-                        if (type == "Phiz Receiver") xdata["address"] = "0.0.0.0";
+                        if (type == "Phiz OSC Receiver") xdata["address"] = "0.0.0.0";
                         adaptor = ftCreateAdaptor(type);
                         if(adaptor is null) continue;
                         adaptor.setOptions(xdata);
@@ -277,7 +277,7 @@ public:
                         // NOTE: inochi-session should ALWAYS be the appName.
                         xdata["appName"] = "inochi-session";
                         if (type == "VMC Receiver") xdata["address"] = "0.0.0.0";
-                        if (type == "Phiz Receiver") xdata["address"] = "0.0.0.0";
+                        if (type == "Phiz OSC Receiver") xdata["address"] = "0.0.0.0";
                         adaptor = ftCreateAdaptor(type);
                         if(adaptor is null) continue;
                         adaptor.setOptions(xdata);
