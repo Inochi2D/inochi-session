@@ -229,6 +229,15 @@ jobs:
         directory: 'out/'
         path: '*'
 
+    - name: Make Artifact of ZIP
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-osx
+        path: |
+          out/inochi-session-macOS.zip
+          version.txt
+        retention-days: 1
+
     - name: 'Build DMG'
       run: |
         ./build-aux/osx/gendmg.sh
