@@ -25,7 +25,7 @@ if [ -d "out/Inochi Session.app" ]; then
     create-dmg \
         --volname "$DMGTITLE" \
         --volicon "InochiSession.icns" \
-        --background "../res/dmgbg.png" \
+        --background "../build-aux/osx/dmgbg.png" \
         --window-size 800 600 \
         --icon "Inochi Session.app" 200 250 \
         --hide-extension "Inochi Session.app" \
