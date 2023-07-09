@@ -23,7 +23,7 @@ cd $LASTPWD
 echo "Setting up file structure..."
 
 # Copy info plist and icon
-cp res/Info.plist out/Inochi\ Session.app/Contents/
+cp build-aux/osx/Info.plist out/Inochi\ Session.app/Contents/
 
 # Move any translation files in if any.
 mv -n out/*.mo out/Inochi\ Session.app/Contents/Resources/i18n/
@@ -36,7 +36,7 @@ cp LICENSE out/Inochi\ Session.app/Contents/SharedSupport/LICENSE
 # Create icons dir
 # TODO: check if dir exists, skip this step if it does
 if [ ! -d "out/InochiCreator.icns" ]; then
-    iconutil -c icns -o out/InochiSession.icns res/Inochi-Session.iconset
+    iconutil -c icns -o out/InochiSession.icns build-aux/osx/Inochi-Session.iconset
 else
     echo "Icons already exist, skipping..."
 fi
