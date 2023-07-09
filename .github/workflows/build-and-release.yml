@@ -219,7 +219,7 @@ jobs:
         # Cleanup and bundle
         echo "Cleaning up..."
         rm "out/Inochi Session.app/Contents/MacOS/inochi-session-x86_64" "out/Inochi Session.app/Contents/MacOS/inochi-session-arm64"
-        ./osxbundle.sh
+        ./build-aux/osx/osxbundle.sh
 
     - name: Archive Zip
       uses: thedoctor0/zip-release@main
@@ -231,7 +231,7 @@ jobs:
 
     - name: 'Build DMG'
       run: |
-        ./gendmg.sh
+        ./build-aux/osx/gendmg.sh
 
     - name: Release
       uses: softprops/action-gh-release@v1
