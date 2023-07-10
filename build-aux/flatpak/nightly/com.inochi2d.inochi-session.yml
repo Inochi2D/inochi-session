@@ -34,7 +34,8 @@ modules:
         dub build --config=meta;
         dub build --config=linux-nightly --debug=InExperimental
       - install -m 755 ./out/inochi-session /app/bin/inochi-session
-      - install -Dm644 ./out/*.mo /app/bin
+      # Uncomment when session translations are actually a thing. 
+      #- install -Dm644 ./out/*.mo /app/bin
 
     sources:
       - type: dir
