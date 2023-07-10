@@ -253,7 +253,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: macOS-build
     steps:
-    - name: Download DMG from artifacts
+    - name: Download ZIP from artifacts
       uses: actions/download-artifact@v3
       with:
         name: release-osx
@@ -263,7 +263,7 @@ jobs:
       env:
         BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
         CHANNEL: osx
-        ITCH_GAME: inochi-creator
+        ITCH_GAME: inochi-session
         ITCH_USER: LunaFoxgirlVT
         VERSION_FILE: version.txt
-        PACKAGE: 'out/inochi-creator-macOS.zip'
+        PACKAGE: 'out/inochi-session-macOS.zip'
