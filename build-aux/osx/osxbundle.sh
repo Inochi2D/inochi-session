@@ -29,7 +29,7 @@ cp build-aux/osx/Info.plist out/Inochi\ Session.app/Contents/
 mv -n out/*.mo out/Inochi\ Session.app/Contents/Resources/i18n/
 
 # Copy license info to SharedSupport
-cp res/*-LICENSE out/Inochi\ Session.app/Contents/SharedSupport/
+cp res/licenses/*-LICENSE out/Inochi\ Session.app/Contents/SharedSupport/
 cp LICENSE out/Inochi\ Session.app/Contents/SharedSupport/LICENSE
 
 
