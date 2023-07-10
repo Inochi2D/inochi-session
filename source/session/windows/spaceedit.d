@@ -101,10 +101,10 @@ private:
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
-            if (uiImSelectable("Phiz")) {
+            if (uiImSelectable("Phiz OSC")) {
                 if (source) source.stop();
 
-                source = new PhizAdaptor();
+                source = new PhizOSCAdaptor();
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
