@@ -34,6 +34,7 @@ modules:
         dub build --config=meta;
         dub build --config=linux-nightly --debug=InExperimental
       - install -m 755 ./out/inochi-session /app/bin/inochi-session
+      - install -m 755 ./out/cimgui.so /app/bin/cimgui.so
       # Uncomment when session translations are actually a thing. 
       #- install -Dm644 ./out/*.mo /app/bin
 
