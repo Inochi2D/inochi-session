@@ -2,7 +2,7 @@
 <component type="desktop">
   <id>com.inochi2d.inochi-session</id>
   <name>Inochi Session</name>
-  <summary>Tool to create and edit Inochi2D puppets.</summary>
+  <summary>Tool for using Inochi2D puppets for streaming.</summary>
   <developer_name>Luna Nielsen</developer_name>
   <launchable type="desktop-id">com.inochi2d.inochi-session.desktop</launchable>
   <metadata_license>CC0-1.0</metadata_license>
