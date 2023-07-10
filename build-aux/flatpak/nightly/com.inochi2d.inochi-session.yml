@@ -7,11 +7,12 @@ sdk-extensions:
   - org.freedesktop.Sdk.Extension.llvm14
 command: inochi-session
 finish-args:
-  - --device=all     #OpenGL rendering, webcams (may be required? not sure)
+  - --device=all          # OpenGL rendering, webcams (may be required? not sure)
   - --socket=fallback-x11
   - --share=ipc
+  - --share=network       # Needed to communicate with external trackers
   - --socket=wayland
-  - --filesystem=host     #This is a dev tool, it should probably have as much access to the host as it can. Also needs it for "Recent Files"
+  - --filesystem=host     # This is a dev tool, it should probably have as much access to the host as it can. Also needs it for "Recent Files"
 
 modules:
 
