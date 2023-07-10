@@ -1,0 +1,59 @@
+id: com.inochi2d.inochi-session
+runtime: org.freedesktop.Platform
+runtime-version: '22.08'
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.ldc
+  - org.freedesktop.Sdk.Extension.llvm14
+command: inochi-session
+finish-args:
+  - --device=all     #OpenGL rendering, webcams (may be required? not sure)
+  - --socket=fallback-x11
+  - --share=ipc
+  - --socket=wayland
+  - --filesystem=host     #This is a dev tool, it should probably have as much access to the host as it can. Also needs it for "Recent Files"
+
+modules:
+
+  - ../shared-modules/SDL2/SDL2-with-libdecor.json
+
+  # --- Inochi Session ---
+  - name: Inochi-Session
+    buildsystem: simple
+    build-options:
+      build-args:
+        - "--share=network"
+
+      append-path: /usr/lib/sdk/ldc/bin
+    build-commands:
+      - chmod +x ./gentl.sh; ./gentl.sh;
+        git clone https://github.com/Inochi2D/i2d-imgui.git --recurse-submodules;
+        git clone https://github.com/Inochi2D/inochi2d.git;
+        dub add-local i2d-imgui/ "0.8.0";
+        dub add-local inochi2d/ "0.8.0";
+        dub build --config=meta;
+        dub build --config=linux-nightly --debug=InExperimental
+      - install -m 755 ./out/inochi-session /app/bin/inochi-session
+      - install -Dm644 ./out/*.mo /app/bin
+
+    sources:
+      - type: dir
+        path: ../../.. # The root of the Inochi Session repo
+
+  - name: Metadata
+    buildsystem: simple
+    build-commands:
+
+      - install -Dm644 com.inochi2d.inochi-session.metainfo.xml /app/share/metainfo/com.inochi2d.inochi-session.metainfo.xml
+      - install -Dm644 ./session/icon_128.png /app/share/icons/hicolor/128x128/apps/com.inochi2d.inochi-session.png
+      - install -Dm644 ./session/icon_256.png /app/share/icons/hicolor/256x256/apps/com.inochi2d.inochi-session.png
+      - install -Dm644 ./session/icon_512.png /app/share/icons/hicolor/512x512/apps/com.inochi2d.inochi-session.png
+      - install -Dm644 inochi-session.desktop /app/share/applications/com.inochi2d.inochi-session.desktop
+
+    sources:
+      - type: git
+        url: https://github.com/Inochi2D/branding.git
+        commit: a412602d346ba69c63237217ae286112e300927d
+
+      - type: dir
+        path: ../../linux/flatpak/nightly/
