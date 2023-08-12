@@ -59,8 +59,8 @@ protected:
     void onEarlyUpdate() {
         insUpdateScene();
         insSendFrame();
-        inDrawScene(vec4(0, 0, width, height));
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        inDrawScene(vec4(0, 0, width, height));
     }
 
     override
