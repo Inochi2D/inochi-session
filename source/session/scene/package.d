@@ -5,6 +5,7 @@
     Authors: Luna Nielsen
 */
 module session.scene;
+import app;
 import inochi2d;
 import inmath;
 import inui.input;
@@ -29,6 +30,10 @@ struct Scene {
 
     bool shouldPostProcess = true;
     float zoneInactiveTimer = 0;
+
+    float MODEL_SWITCH_TIMER = MODEL_SWITCH_TIME;
+    size_t MODEL_IDX = 0;
+    enum MODEL_SWITCH_TIME = 60*1;
 }
 
 struct SceneItem {
@@ -195,6 +200,17 @@ void insUpdateScene() {
     glDisable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    insScene.MODEL_SWITCH_TIMER += deltaTime();
+    if (insScene.MODEL_SWITCH_TIMER > insScene.MODEL_SWITCH_TIME) {
+        insScene.sceneItems.length = 0;
+        string path = MODELS[insScene.MODEL_IDX];
+        insSceneAddPuppet(path, inLoadPuppet(path));
+        
+        insScene.MODEL_IDX++;
+        if (insScene.MODEL_IDX >= MODELS.length) insScene.MODEL_IDX = 0;
+        insScene.MODEL_SWITCH_TIMER = 0;
+    }
 
     trashcanVisibility = dampen(trashcanVisibility, isDragDown ? 0.85 : 0, deltaTime(), 1);
     {

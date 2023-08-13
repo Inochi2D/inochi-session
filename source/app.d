@@ -18,7 +18,10 @@ import session.scene;
 import session.framesend;
 import session.tracking.expr;
 import std.process;
+import std.file;
+import std.path;
 
+string[] MODELS;
 
 void main(string[] args) {
     insLogInfo("Inochi Session %s, args=%s", INS_VERSION, args[1..$]);
@@ -30,6 +33,13 @@ void main(string[] args) {
         "Inochi Session"                // Human-readable name
     );
     inSetApplication(appInfo);
+
+    
+    foreach(file; dirEntries(buildPath("models"), SpanMode.shallow)) {
+        if (file.isDir()) continue;
+
+        MODELS ~= file.name();
+    }
 
     // Initialize Lua
     insLuaInit();
