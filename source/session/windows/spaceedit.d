@@ -115,6 +115,13 @@ private:
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
+            if (uiImSelectable("Facemotion3D")) {
+                if (source) source.stop();
+
+                source = new FM3DAdaptor();
+                editingZone.sources[i] = source;
+                refreshOptionsList();
+            }
             version (WebHookAdaptor) {
                 if (uiImSelectable("WebHook Receiver")) {
                     if (source) source.stop();
