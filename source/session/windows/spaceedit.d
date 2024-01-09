@@ -101,6 +101,13 @@ private:
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
+            if (uiImSelectable("Phiz OSC")) {
+                if (source) source.stop();
+
+                source = new PhizOSCAdaptor();
+                editingZone.sources[i] = source;
+                refreshOptionsList();
+            }
             if (uiImSelectable("OpenSeeFace")) {
                 if (source) source.stop();
 
@@ -127,6 +134,15 @@ private:
                     if (source) source.stop();
 
                     source = new WebHookAdaptor();
+                    editingZone.sources[i] = source;
+                    refreshOptionsList();
+                }
+            }
+            version (Phiz) {
+                if (uiImSelectable("Phiz Receiver")) {
+                    if (source) source.stop();
+
+                    source = new PhizAdaptor();
                     editingZone.sources[i] = source;
                     refreshOptionsList();
                 }
