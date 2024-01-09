@@ -22,6 +22,7 @@ import i18n;
 import inui.utils.link;
 import std.format;
 import session.ver;
+import bindbc.opengl;
 
 version(linux) import dportals;
 
@@ -58,6 +59,7 @@ protected:
     void onEarlyUpdate() {
         insUpdateScene();
         insSendFrame();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         inDrawScene(vec4(0, 0, width, height));
     }
 

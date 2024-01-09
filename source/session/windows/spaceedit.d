@@ -122,20 +122,27 @@ private:
                 editingZone.sources[i] = source;
                 refreshOptionsList();
             }
-            version (Phiz) {
-                if (uiImSelectable("Phiz Receiver")) {
-                    if (source) source.stop();
+            if (uiImSelectable("Facemotion3D")) {
+                if (source) source.stop();
 
-                    source = new PhizAdaptor();
-                    editingZone.sources[i] = source;
-                    refreshOptionsList();
-                }
+                source = new FM3DAdaptor();
+                editingZone.sources[i] = source;
+                refreshOptionsList();
             }
             version (WebHookAdaptor) {
                 if (uiImSelectable("WebHook Receiver")) {
                     if (source) source.stop();
 
                     source = new WebHookAdaptor();
+                    editingZone.sources[i] = source;
+                    refreshOptionsList();
+                }
+            }
+            version (Phiz) {
+                if (uiImSelectable("Phiz Receiver")) {
+                    if (source) source.stop();
+
+                    source = new PhizAdaptor();
                     editingZone.sources[i] = source;
                     refreshOptionsList();
                 }
