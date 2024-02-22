@@ -16,6 +16,7 @@ import std.format;
 import i18n;
 import inmath.noise;
 import std.random : uniform;
+import inmath;
 
 private {
     LuaState* state;
@@ -92,6 +93,7 @@ void insInitExpressions() {
     state.register!((float value) { return radians(value); })("radians");
     state.register!((float val) { return osnoise2(val, 0); })("simplex");
     state.register!((float val) { return (1+osnoise2(val, 0))/2.0; })("usimplex");
+    state.register!((float val) { return sign(val); })("sign");
 }
 
 void insCleanupExpressions() {
