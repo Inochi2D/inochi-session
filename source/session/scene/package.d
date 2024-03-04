@@ -10,6 +10,7 @@ import inmath;
 import inui.input;
 import inui;
 import session.tracking;
+import session.animation;
 import session.tracking.vspace;
 import session.panels.tracking : insTrackingPanelRefresh;
 import session.log;
@@ -35,11 +36,17 @@ struct SceneItem {
     string filePath;
     Puppet puppet;
     TrackingBinding[] bindings;
+    AnimationControl[] animations;
     AnimationPlayer player;
     AnimationPlaybackRef sleepAnim;
 
     void saveBindings() {
         puppet.extData["com.inochi2d.inochi-session.bindings"] = cast(ubyte[])serializeToJson(bindings);
+        inWriteINPExtensions(puppet, filePath);
+    }
+
+    void saveAnimations() {
+        puppet.extData["com.inochi2d.inochi-session.animations"] = cast(ubyte[])serializeToJson(animations);
         inWriteINPExtensions(puppet, filePath);
     }
 
@@ -52,6 +59,22 @@ struct SceneItem {
             foreach(ref binding; preBindings) {
                 if (binding.finalize(puppet)) {
                     bindings ~= binding;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    bool tryLoadAnimations() {
+        if ("com.inochi2d.inochi-session.animations" in puppet.extData) {
+            auto preAnimation = deserialize!(AnimationControl[])(cast(string)puppet.extData["com.inochi2d.inochi-session.animations"]);
+
+            // finalize the loading
+            animations = [];
+            foreach(ref animation; preAnimation) {
+                if (animation.finalize(player)) {
+                    animations ~= animation;
                 }
             }
             return true;
@@ -112,6 +135,25 @@ struct SceneItem {
             }
         }
     }
+
+    void genAnimationControls() {
+        AnimationControl[string] acs; 
+        foreach(ref ac; animations) {
+            acs[ac.name] = ac;
+        }
+
+        foreach(name, ref anim; puppet.getAnimations()) {
+            if(name !in acs){
+                AnimationControl ac = new AnimationControl();
+                ac.name = name;
+                ac.finalize(player);
+
+                animations ~= ac;
+            }
+        }
+
+    }
+
 }
 
 /**
@@ -132,7 +174,12 @@ void insSceneAddPuppet(string path, Puppet puppet) {
         // Reset bindings
         item.bindings.length = 0;
     }
+    if (!item.tryLoadAnimations()) {
+        // Reset animations
+        item.animations.length = 0;
+    }
     item.genBindings();
+    item.genAnimationControls();
 
     insScene.sceneItems ~= item;
 }
