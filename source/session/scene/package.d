@@ -178,6 +178,7 @@ void insSceneAddPuppet(string path, Puppet puppet) {
         // Reset animations
         item.animations.length = 0;
     }
+
     item.genBindings();
     item.genAnimationControls();
 
@@ -333,6 +334,10 @@ void insUpdateScene() {
             
             foreach(ref binding; sceneItem.bindings) {
                 binding.update();
+            }
+
+            foreach(ref ac; sceneItem.animations) {
+                ac.update();
             }
 
             sceneItem.player.update(deltaTime());
