@@ -317,6 +317,7 @@ void insUpdateScene() {
             if (insScene.zoneInactiveTimer >= 5) {
                 foreach(ref sceneItem; insScene.sceneItems) {
                     if (sceneItem.sleepAnim && !sceneItem.sleepAnim.playing()) {
+                        sceneItem.player.stopAll(true);
                         sceneItem.sleepAnim.strength = 1;
                         sceneItem.sleepAnim.play(true);
                     }
