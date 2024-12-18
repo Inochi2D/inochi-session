@@ -88,9 +88,17 @@ protected:
             uiImUnindent();
 
             uiImIndent();
+
+                uiImLabelColored(_("Light Direction"), vec4(0.8, 0.3, 0.3, 1));
                 const(char)* lightDirName = "###LIGHT_DIR";
-                if (igSliderFloat3(lightDirName, &inSceneLightDirection.vector, -1, 1)) {
-                    inSettingsSet!(float[3])("lightDir", inSceneLightDirection.vector);
+                if (igDragFloat2(lightDirName, cast(float[2]*)&inSceneLightDir.vector, 0.01f, -10f, 10f)) {
+                    inSettingsSet!(float[3])("lightDir", inSceneLightDir.vector);
+                }
+
+                uiImLabelColored(_("Light Strength"), vec4(0.8, 0.3, 0.3, 1));
+                const(char)* lightDistName = "###LIGHT_DIST";
+                if (igDragFloat(lightDistName, &inSceneLightDir.vector[2], 0.01f, 0f, 2f)) {
+                    inSettingsSet!(float[3])("lightDir", inSceneLightDir.vector);
                 }
             uiImUnindent();
         uiImUnindent();
