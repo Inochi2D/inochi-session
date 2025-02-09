@@ -54,16 +54,18 @@ private:
 
     string[string][Adaptor] options;
 
+    void adaptorDelete(size_t idx) {
+        // stop source on delete
+        if (editingZone.sources[idx]) editingZone.sources[idx].stop();
+        editingZone.sources = editingZone.sources.remove(idx);
+    }
+
     void adaptorMenu(size_t idx) {
         uiImRightClickPopup("AdaptorPopup");
 
         if (uiImBeginPopup("AdaptorPopup")) {
-            if (uiImMenuItem(__("Delete"))) {
-
-                // stop source on delete
-                if (editingZone.sources[idx]) editingZone.sources[idx].stop();
-                editingZone.sources = editingZone.sources.remove(idx);
-            }
+            if (uiImMenuItem(__("Delete")))
+                adaptorDelete(idx);
             uiImEndPopup();
         }
     }
@@ -83,6 +85,21 @@ private:
             }
             uiImEndPopup();
         }
+    }
+
+    /**
+        this function show hints to help users to configure the adaptor correctly
+    */
+    void adaptorHint(ref Adaptor source) {
+        /**
+            for port binding information, we should refer to `facetrack-d/source/ft/adaptors/*.d`
+        */
+
+        string portHint = "";
+        if (auto vts = cast(IFMAdaptor) source)
+            portHint = _("iFacialMocap Adpator would listen on udp port 49983");
+        if (portHint.length > 0)
+            uiImLabel(portHint ~ "\n" ~ _("Make sure the port is not blocked by firewall."));
     }
 
     void adaptorSelect(size_t i, ref Adaptor source, const(char)* adaptorName) {
@@ -238,6 +255,8 @@ public:
                                                 uiImInputText(option, avail.x/2, options[source][option]);
                                             }
 
+                                            adaptorHint(source);
+
                                             if (uiImButton(__("Save Changes"))) {
                                                 try {
                                                     source.setOptions(options[source]);
@@ -248,6 +267,10 @@ public:
                                                 }
                                             }
 
+                                            // Expose the delete button to make sure users notice it.
+                                            uiImSameLine(0, 40);
+                                            if (uiImButton(__("Delete")))
+                                                adaptorDelete(i);
                                         uiImUnindent();
                                     } else {
                                         adaptorMenu(i);
