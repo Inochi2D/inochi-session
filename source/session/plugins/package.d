@@ -14,9 +14,9 @@ import lumars;
 import session.log;
 import std.file;
 import std.path;
+import std.exception;
 
 private {
-    bool couldLoadLua = true;
     LuaState* state;
     LuaTable apiTable;
 
@@ -34,13 +34,17 @@ Plugin[] insPlugins;
     Initializes Lua support
 */
 void insLuaInit() {
-    // LuaSupport support = loadLua();
-
-    // if (support == LuaSupport.noLibrary || support == LuaSupport.badLibrary) {
-    //     couldLoadLua = false;
-    //     insLogWarn("Could not load Lua support...");
-    // } else insLogInfo("Lua support initialized.");
-    insLogInfo("Lua support initialized. (Statically linked for now)");
+     version(linux){
+        LuaSupport support = loadLua("libluajit-5.1.so.2");
+        if(support == LuaSupport.noLibrary){
+            support = loadLua();
+        }
+        enforce(support != LuaSupport.noLibrary, "Could not find Lua support...!");
+        enforce(support != LuaSupport.badLibrary, "Bad Lua library found!");
+        insLogInfo("Lua support initialized.");
+    } else {
+        insLogInfo("Lua support initialized. (Statically linked)");
+    }
 
     // Create Lua state
     state = new LuaState(luaL_newstate());
@@ -56,6 +60,9 @@ void insLuaInit() {
 void insLuaUnload() {
     lua_close(state.handle());
     destroy(state);
+    version(linux){
+        unloadLua();
+    }
 }
 
 void insSavePluginState() {
@@ -109,13 +116,6 @@ void insEnumeratePlugins() {
     }
 
     insSavePluginState();
-}
-
-/**
-    Gets whether Lua support is loaded.
-*/
-bool insHasLua() {
-    return couldLoadLua;
 }
 
 /**
