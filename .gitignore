@@ -3,21 +3,16 @@
 docs.json
 __dummy.html
 docs/
-/inochi-session
-inochi-session.so
-inochi-session.dylib
-inochi-session.dll
-inochi-session.a
-inochi-session.lib
-inochi-session-test-*
+out/
+
+.DS_Store
+*.res
 *.exe
 *.o
 *.obj
 *.lst
 *.inp
-out/
+*.inx
 
 dub.selections.json
 source/session/ver.d
-build-aux/windows/inochi-session.res
-version.txt

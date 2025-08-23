@@ -111,7 +111,7 @@ configuration "win32-nightly" {
 
 configuration "update-version" {
 	targetType "none"
-	preGenerateCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile version.txt"
+	preGenerateCommands "dub run gitver -- --prefix INS --file source/session/ver.d --mod session.ver --appname \"Inochi Session\" --itchfile res/version.txt"
 }
 
 configuration "meta" {
