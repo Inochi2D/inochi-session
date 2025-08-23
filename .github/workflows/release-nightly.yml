@@ -17,10 +17,11 @@ jobs:
   build:
     uses: './.github/workflows/build.yml'
     with:
-      target_ref: '${{ github.ref_name }}'
+      target_ref: 'v0_8-retooling'
       variant: 'nightly'
       generate_version: true
       do_package: true
+      fail_fast: false
   
   gh-publish:
     needs: build
